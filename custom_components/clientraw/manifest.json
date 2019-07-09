@@ -1,7 +1,7 @@
 {
   "domain": "clientraw",
   "name": "Clientraw",
-  "documentation": "https://github.com/pilotak/HomeAssistant-CustomComponents/blob/master/clientraw/sensor.clientraw.markdown",
+  "documentation": "https://github.com/pilotak/homeassistant-clientraw/blob/master/info.md",
   "requirements": [],
   "dependencies": [],
   "codeowners": [
