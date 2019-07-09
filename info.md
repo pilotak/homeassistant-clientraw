@@ -1,4 +1,3 @@
-# HomeAssistant component: `clientraw`
 The `clientraw` platform is WD Clientraw parser which can read data from your online weather station such a Davis Vantage PRO 2 (tested) and other generating clientraw.txt files
 
 To add clientraw to your installation, add the following to your `configuration.yaml` file:
@@ -56,43 +55,4 @@ sensor:
       - humidity
       - cloud_height
       - forecast
-```
-Symbol codes:
-```
-0 =  sunny
-1 =  clearnight
-2 =  cloudy
-3 =  cloudy2
-4 =  night cloudy
-5 =  dry
-6 =  fog
-7 =  haze
-8 =  heavyrain
-9 =  mainlyfine
-10 = mist
-11 = night fog
-12 = night heavyrain
-13 = night overcast
-14 = night rain
-15 = night showers
-16 = night snow
-17 = night thunder
-18 = overcast
-19 = partlycloudy
-20 = rain
-21 = rain2
-22 = showers2
-23 = sleet
-24 = sleetshowers
-25 = snow
-26 = snowmelt
-27 = snowshowers2
-28 = sunny
-29 = thundershowers
-30 = thundershowers2
-31 = thunderstorms
-32 = tornado
-33 = windy
-34 = stopped rainning
-35 = wind + rain
 ```
