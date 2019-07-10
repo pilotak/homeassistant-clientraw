@@ -33,8 +33,22 @@ Configuration variables:
   - **cloud_height**: Cloud Height (m or ft)
   - **forecast**: string based output ie.: night showers
 
-A full configuration example can be found below:
+## Install via [HACS](https://github.com/custom-components/hacs)
+You can find this integration in a store.
 
+## Install manually
+You need to clone this repo to the root folder of your configuration, file tree should look like this:
+```
+└── ...
+└── configuration.yaml
+└── custom_components
+    └── clientraw
+        └── __init__.py
+        └── manifest.json
+        └── sensor.py
+```
+
+## A full configuration example
 ```yaml
 # Example configuration.yaml entry
 sensor:
