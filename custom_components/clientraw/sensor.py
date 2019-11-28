@@ -217,9 +217,9 @@ class ClientrawData(object):
                 speed = float(self.data[1])
 
                 if self.hass.config.units.is_metric:
-                    new_state = speed * 1.85166
+                    speed = speed * 1.85166
                 else:
-                    new_state = speed * 1.1507794
+                    speed = speed * 1.1507794
 
                 new_state = round(speed, 2)
 
@@ -227,9 +227,9 @@ class ClientrawData(object):
                 gust = float(self.data[2])
 
                 if self.hass.config.units.is_metric:
-                    new_state = gust * 1.85166
+                    gust = gust * 1.85166
                 else:
-                    new_state = gust * 1.1507794
+                    gust = gust * 1.1507794
 
                 new_state = round(gust, 2)
 
