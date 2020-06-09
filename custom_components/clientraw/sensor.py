@@ -33,6 +33,8 @@ SENSOR_TYPES = {
     'heat_index': ['Heat index', TEMP_CELSIUS, TEMP_FAHRENHEIT,
                    'mdi:thermometer'],
     'temp': ['Temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
+    'temp_day_max': ['Today MAX temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
+    'temp_day_min': ['Today MIN temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
     'humidex': ['Humidex', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
     'wind_degrees': ['Wind Degrees', '°', '°', 'mdi:subdirectory-arrow-right'],
     'wind_dir': ['Wind Direction', None, None, 'mdi:subdirectory-arrow-right'],
@@ -304,6 +306,24 @@ class ClientrawData(object):
                        "thunderstorms", "tornado", "windy", "stopped",
                        "rainning", "wind + rain"]
                 new_state = arr[(val)] if val < len(arr) else "unknown"
+
+            elif dev.type == 'temp_day_max':
+                temperature = float(self.data[46])
+
+                if not self.hass.config.units.is_metric:
+                    temperature = convert_temperature(
+                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+
+                new_state = round(temperature, 2)
+
+            elif dev.type == 'temp_day_min':
+                temperature = float(self.data[47])
+
+                if not self.hass.config.units.is_metric:
+                    temperature = convert_temperature(
+                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+
+                new_state = round(temperature, 2)
 
             _LOGGER.debug("%s %s", dev.type, new_state)
 

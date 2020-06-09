@@ -21,6 +21,8 @@ Configuration variables:
   - **dewpoint**: Dewpoint (°C or °F)
   - **heat_index**: Heat index (°C or °F)
   - **temp**: Temperature (°C or °F)
+  - **temp_day_max**: Today MAX temperature (°C or °F)
+  - **temp_day_min**: Today MIN temperature (°C or °F)
   - **humidex**: Humidex (°C or °F)
   - **wind_degrees**: Where the wind is coming from in degrees, with true north at 0° and progressing clockwise.
   - **wind_dir**: Wind Direction as string ie.: N, NW, etc.
@@ -61,6 +63,8 @@ sensor:
       - dewpoint
       - heat_index
       - temp
+      - temp_day_max
+      - temp_day_min
       - humidex
       - wind_degrees
       - wind_dir
