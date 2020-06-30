@@ -33,6 +33,7 @@ SENSOR_TYPES = {
     'heat_index': ['Heat index', TEMP_CELSIUS, TEMP_FAHRENHEIT,
                    'mdi:thermometer'],
     'temp': ['Temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
+    'temp_indoor': ['Indoor Temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
     'temp_day_max': ['Today MAX temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
     'temp_day_min': ['Today MIN temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
     'humidex': ['Humidex', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
@@ -42,9 +43,12 @@ SENSOR_TYPES = {
     'wind_speed': ['Wind Speed', 'km/h', 'mph', 'mdi:weather-windy-variant'],
     'symbol': ['Symbol', None, None, 'mdi:triangle-outline'],
     'daily_rain': ['Daily Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
+    'monthly_rain': ['Monthly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
+    'yearly_rain': ['Yearly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],    	    	
     'rain_rate': ['Rain Rate', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'pressure': ['Pressure', PRESSURE_HPA, PRESSURE_INHG, 'mdi:trending-up'],
     'humidity': ['Humidity', '%', '%', 'mdi:water-percent'],
+    'humidity_indoor': ['Indoor Humidity', '%', '%', 'mdi:water-percent'],	
     'cloud_height': ['Cloud Height', LENGTH_METERS, LENGTH_FEET,
                      'mdi:cloud-outline'],
     'forecast': ['Forecast', None, None, "mdi:card-text-outline"]
@@ -198,6 +202,22 @@ class ClientrawData(object):
 
                 new_state = round(rain, 2)
 
+            elif dev.type == 'monthly_rain':
+                rain = float(self.data[8])
+
+                if not self.hass.config.units.is_metric:
+                    rain = rain * 0.0393700787
+
+                new_state = round(rain, 2)
+
+            elif dev.type == 'yearly_rain':
+                rain = float(self.data[9])
+
+                if not self.hass.config.units.is_metric:
+                    rain = rain * 0.0393700787
+
+                new_state = round(rain, 2)
+
             elif dev.type == 'rain_rate':
                 rate = float(self.data[10])
 
@@ -214,6 +234,15 @@ class ClientrawData(object):
                         temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
                 new_state = round(temperature, 2)
+                
+            elif dev.type == 'temp_indoor':
+                temperature = float(self.data[12])
+
+                if not self.hass.config.units.is_metric:
+                    temperature = convert_temperature(
+                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+
+                new_state = round(temperature, 2)                
 
             elif dev.type == 'wind_speed':
                 speed = float(self.data[1])
@@ -226,7 +255,7 @@ class ClientrawData(object):
                 new_state = round(speed, 2)
 
             elif dev.type == 'wind_gust':
-                gust = float(self.data[2])
+                gust = float(self.data[133])
 
                 if self.hass.config.units.is_metric:
                     gust = gust * 1.85166
@@ -256,6 +285,9 @@ class ClientrawData(object):
 
             elif dev.type == 'humidity':
                 new_state = float(self.data[5])
+                
+            elif dev.type == 'humidity_indoor':
+                new_state = float(self.data[13])                
 
             elif dev.type == 'cloud_height':
                 height = float(self.data[73])
@@ -295,16 +327,16 @@ class ClientrawData(object):
 
             elif dev.type == 'forecast':
                 val = int(self.data[15])
-                arr = ["sunny", "clearnight", "cloudy", "cloudy2",
-                       "night cloudy", "dry", "fog", "haze", "heavyrain",
-                       "mainlyfine", "mist", "night fog", "night heavyrain",
+                arr = ["sunny", "clear night", "cloudy", "cloudy2",
+                       "night cloudy", "dry", "fog", "haze", "heavy rain",
+                       "mainly fine", "mist", "night fog", "night heavy rain",
                        "night overcast", "night rain", "night showers",
-                       "night snow", "night", "thunder", "overcast",
-                       "partlycloudy", "rain", "rain2", "showers2", "sleet",
-                       "sleetshowers", "snow", "snowmelt", "snowshowers2",
-                       "sunny", "thundershowers", "thundershowers2",
-                       "thunderstorms", "tornado", "windy", "stopped",
-                       "rainning", "wind + rain"]
+                       "night snow", "night thunder", "overcast",
+                       "partly cloudy", "rain", "rain2", "showers", "sleet",
+                       "sleet showers", "snow", "snow melt", "snow showers2",
+                       "sunny", "thunder showers", "thunder showers2",
+                       "thunder storms", "tornado", "windy",
+                       "stopped raining"]
                 new_state = arr[(val)] if val < len(arr) else "unknown"
 
             elif dev.type == 'temp_day_max':
