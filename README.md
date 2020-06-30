@@ -21,6 +21,7 @@ Configuration variables:
   - **dewpoint**: Dewpoint (°C or °F)
   - **heat_index**: Heat index (°C or °F)
   - **temp**: Temperature (°C or °F)
+  - **temp_indoor**: Temperature (°C or °F)
   - **temp_day_max**: Today MAX temperature (°C or °F)
   - **temp_day_min**: Today MIN temperature (°C or °F)
   - **humidex**: Humidex (°C or °F)
@@ -30,8 +31,13 @@ Configuration variables:
   - **wind_speed**: Wind Speed (km/h or mph)
   - **symbol**: Symbol
   - **daily_rain**: Daily Rain (mm or in)
+  - **monthly_rain**: Daily Rain (mm or in)
+  - **daily_rain**: Daily Rain (mm or in)
+  - **yearly_rain**: Daily Rain (mm or in)
+  - **rain_rate**: Daily Rain (mm or in)
   - **pressure**: Pressure (hPa or inHg)
   - **humidity**: Relative humidity (%)
+  - **humidity_indoor**: Relative humidity (%)
   - **cloud_height**: Cloud Height (m or ft)
   - **forecast**: string based output ie.: night showers
 
@@ -63,6 +69,7 @@ sensor:
       - dewpoint
       - heat_index
       - temp
+      - temp_indoor
       - temp_day_max
       - temp_day_min
       - humidex
@@ -72,15 +79,19 @@ sensor:
       - wind_speed
       - symbol
       - rain_rate
+      - daily_rain
+      - monthly_rain
+      - yearly_rain
       - pressure
       - humidity
+      - humidity_indoor
       - cloud_height
       - forecast
 ```
 Symbol codes:
 ```
 0 =  sunny
-1 =  clearnight
+1 =  clear night
 2 =  cloudy
 3 =  cloudy2
 4 =  night cloudy
@@ -88,31 +99,30 @@ Symbol codes:
 6 =  fog
 7 =  haze
 8 =  heavyrain
-9 =  mainlyfine
+9 =  mainly fine
 10 = mist
 11 = night fog
-12 = night heavyrain
+12 = night heavy rain
 13 = night overcast
 14 = night rain
 15 = night showers
 16 = night snow
 17 = night thunder
 18 = overcast
-19 = partlycloudy
+19 = partly cloudy
 20 = rain
 21 = rain2
-22 = showers2
+22 = showers
 23 = sleet
-24 = sleetshowers
+24 = sleet showers
 25 = snow
-26 = snowmelt
-27 = snowshowers2
+26 = snow melt
+27 = snows howers2
 28 = sunny
-29 = thundershowers
-30 = thundershowers2
-31 = thunderstorms
+29 = thunder showers
+30 = thunder showers2
+31 = thunder storms
 32 = tornado
 33 = windy
-34 = stopped rainning
-35 = wind + rain
+34 = stopped raining
 ```
