@@ -336,7 +336,7 @@ class ClientrawData(object):
                        "sleet showers", "snow", "snow melt", "snow showers2",
                        "sunny", "thunder showers", "thunder showers2",
                        "thunder storms", "tornado", "windy",
-                       "stopped raining"]
+                       "stopped raining", "windy rain", "sunrise", "sunset"]
                 new_state = arr[(val)] if val < len(arr) else "unknown"
 
             elif dev.type == 'temp_day_max':
