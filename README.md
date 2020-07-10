@@ -117,7 +117,7 @@ Symbol codes:
 24 = sleet showers
 25 = snow
 26 = snow melt
-27 = snows howers2
+27 = snow showers2
 28 = sunny
 29 = thunder showers
 30 = thunder showers2
