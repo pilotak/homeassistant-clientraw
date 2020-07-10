@@ -125,4 +125,7 @@ Symbol codes:
 32 = tornado
 33 = windy
 34 = stopped raining
+35 = windy rain
+36 = sunrise
+37 = sunset
 ```
