@@ -39,7 +39,8 @@ SENSOR_TYPES = {
     'humidex': ['Humidex', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
     'wind_degrees': ['Wind Degrees', '°', '°', 'mdi:subdirectory-arrow-right'],
     'wind_dir': ['Wind Direction', None, None, 'mdi:subdirectory-arrow-right'],
-    'wind_gust': ['Wind Gust', 'km/h', 'mph', 'mdi:weather-windy'],
+    'wind_gust_hour': ['Wind Gust last hour', 'km/h', 'mph', 'mdi:weather-windy'],
+    'wind_gust_day'	: ['Wind Gust last day', 'km/h', 'mph', 'mdi:weather-windy'],
     'wind_speed': ['Wind Speed', 'km/h', 'mph', 'mdi:weather-windy-variant'],
     'symbol': ['Symbol', None, None, 'mdi:triangle-outline'],
     'daily_rain': ['Daily Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
@@ -254,7 +255,7 @@ class ClientrawData(object):
 
                 new_state = round(speed, 2)
 
-            elif dev.type == 'wind_gust':
+            elif dev.type == 'wind_gust_hour':
                 gust = float(self.data[133])
 
                 if self.hass.config.units.is_metric:
@@ -263,6 +264,16 @@ class ClientrawData(object):
                     gust = gust * 1.1507794
 
                 new_state = round(gust, 2)
+                
+            elif dev.type == 'wind_gust_day':
+                gust = float(self.data[71])
+
+                if self.hass.config.units.is_metric:
+                    gust = gust * 1.85166
+                else:
+                    gust = gust * 1.1507794
+
+                new_state = round(gust, 2)                
 
             elif dev.type == 'pressure':
                 pressure = float(self.data[6])
