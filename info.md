@@ -26,7 +26,8 @@ Configuration variables:
   - **humidex**: Humidex (°C or °F)
   - **wind_degrees**: Where the wind is coming from in degrees, with true north at 0° and progressing clockwise.
   - **wind_dir**: Wind Direction as string ie.: N, NW, etc.
-  - **wind_gust**: Wind Gust (km/h or mph)
+  - **wind_gust_hour**: Wind Gust last hour (km/h or mph)
+  - **wind_gust_day**: Wind Gust last day (km/h or mph)
   - **wind_speed**: Wind Speed (km/h or mph)
   - **symbol**: Symbol
   - **daily_rain**: Daily Rain (mm or in)
@@ -74,7 +75,8 @@ sensor:
       - humidex
       - wind_degrees
       - wind_dir
-      - wind_gust
+      - wind_gust_hour
+      - wind_gust_day
       - wind_speed
       - symbol
       - rain_rate
