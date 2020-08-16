@@ -1,4 +1,5 @@
 # HomeAssistant component: `clientraw`
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 The `clientraw` platform is WD Clientraw parser which can read data from your online weather station such a Davis Vantage PRO 2 (tested) and other generating clientraw.txt files
 
 To add clientraw to your installation, add the following to your `configuration.yaml` file:
