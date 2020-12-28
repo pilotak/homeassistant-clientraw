@@ -2,9 +2,8 @@
   "domain": "clientraw",
   "name": "Clientraw",
   "documentation": "https://github.com/pilotak/homeassistant-clientraw",
+  "issue_tracker": "https://github.com/pilotak/homeassistant-clientraw/issues",
   "requirements": [],
   "dependencies": [],
-  "codeowners": [
-  	"@pilotak"
-  ]
+  "codeowners": ["@pilotak"]
 }
