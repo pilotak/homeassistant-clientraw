@@ -24,4 +24,4 @@ jobs:
           CATEGORY: "integration"
       
       - name: HASSFEST
-        uses: home-assistant/actions/hassfest@master
+        uses: home-assistant/actions/hassfest@main
