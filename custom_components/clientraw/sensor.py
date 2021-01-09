@@ -44,6 +44,7 @@ SENSOR_TYPES = {
     'wind_speed': ['Wind Speed', 'km/h', 'mph', 'mdi:weather-windy-variant'],
     'symbol': ['Symbol', None, None, 'mdi:triangle-outline'],
     'daily_rain': ['Daily Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
+    'yesterday_rain': ['Yesterday Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'monthly_rain': ['Monthly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'yearly_rain': ['Yearly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],    	    	
     'rain_rate': ['Rain Rate', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
@@ -197,6 +198,14 @@ class ClientrawData(object):
 
             elif dev.type == 'daily_rain':
                 rain = float(self.data[7])
+
+                if not self.hass.config.units.is_metric:
+                    rain = rain * 0.0393700787
+
+                new_state = round(rain, 2)
+
+            elif dev.type == 'yesterday_rain':
+                rain = float(self.data[19])
 
                 if not self.hass.config.units.is_metric:
                     rain = rain * 0.0393700787

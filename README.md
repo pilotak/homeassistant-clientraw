@@ -35,6 +35,7 @@ Configuration variables:
   - **wind_speed**: Wind Speed (km/h or mph)
   - **symbol**: Symbol
   - **daily_rain**: Daily Rain (mm or in)
+  - **yesterday_rain**: Yesterday Rain (mm or in)
   - **monthly_rain**: Daily Rain (mm or in)
   - **daily_rain**: Daily Rain (mm or in)
   - **yearly_rain**: Daily Rain (mm or in)
@@ -85,6 +86,7 @@ sensor:
       - symbol
       - rain_rate
       - daily_rain
+      - yesterday_rain
       - monthly_rain
       - yearly_rain
       - pressure
