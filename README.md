@@ -36,10 +36,9 @@ Configuration variables:
   - **symbol**: Symbol
   - **daily_rain**: Daily Rain (mm or in)
   - **yesterday_rain**: Yesterday Rain (mm or in)
-  - **monthly_rain**: Daily Rain (mm or in)
-  - **daily_rain**: Daily Rain (mm or in)
-  - **yearly_rain**: Daily Rain (mm or in)
-  - **rain_rate**: Daily Rain (mm or in)
+  - **monthly_rain**: Monthly Rain (mm or in)
+  - **yearly_rain**: Yearly Rain (mm or in)
+  - **rain_rate**: Rain rate (mm or in)
   - **pressure**: Pressure (hPa or inHg)
   - **humidity**: Relative humidity (%)
   - **humidity_indoor**: Relative humidity (%)
