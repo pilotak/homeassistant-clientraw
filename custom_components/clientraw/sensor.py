@@ -11,8 +11,8 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import PLATFORM_SCHEMA, DOMAIN as SENSOR_DOMAIN
 from homeassistant.const import (
     CONF_MONITORED_CONDITIONS, TEMP_CELSIUS, TEMP_FAHRENHEIT, PRESSURE_HPA,
-    PRESSURE_INHG, LENGTH_METERS, LENGTH_FEET, LENGTH_INCHES, ATTR_ATTRIBUTION)
-from homeassistant.util import dt as dt_util
+    PRESSURE_INHG, LENGTH_METERS, LENGTH_FEET, LENGTH_INCHES, ATTR_ATTRIBUTION,
+    STATE_UNAVAILABLE, STATE_UNKNOWN)
 from homeassistant.util import slugify
 from homeassistant.util.pressure import convert as convert_pressure
 from homeassistant.util.temperature import convert as convert_temperature
@@ -204,185 +204,251 @@ class ClientrawData(object):
                 new_state = int(self.data[48])
 
             elif dev.type == 'daily_rain':
-                rain = float(self.data[7])
+                if self.data[7] != '-':
+                    rain = float(self.data[7])
 
-                if not self.hass.config.units.is_metric:
-                    rain = rain * 0.0393700787
+                    if not self.hass.config.units.is_metric:
+                        rain = rain * 0.0393700787
 
-                new_state = round(rain, 2)
+                    new_state = round(rain, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'yesterday_rain':
-                rain = float(self.data[19])
+                if self.data[19] != '-':
+                    rain = float(self.data[19])
 
-                if not self.hass.config.units.is_metric:
-                    rain = rain * 0.0393700787
+                    if not self.hass.config.units.is_metric:
+                        rain = rain * 0.0393700787
 
-                new_state = round(rain, 2)
+                    new_state = round(rain, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'monthly_rain':
-                rain = float(self.data[8])
+                if self.data[8] != '-':
+                    rain = float(self.data[8])
 
-                if not self.hass.config.units.is_metric:
-                    rain = rain * 0.0393700787
+                    if not self.hass.config.units.is_metric:
+                        rain = rain * 0.0393700787
 
-                new_state = round(rain, 2)
+                    new_state = round(rain, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'yearly_rain':
-                rain = float(self.data[9])
+                if self.data[9] != '-':
+                    rain = float(self.data[9])
 
-                if not self.hass.config.units.is_metric:
-                    rain = rain * 0.0393700787
+                    if not self.hass.config.units.is_metric:
+                        rain = rain * 0.0393700787
 
-                new_state = round(rain, 2)
+                    new_state = round(rain, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'rain_rate':
-                rate = float(self.data[10])
+                if self.data[10] != '-':
+                    rate = float(self.data[10])
 
-                if not self.hass.config.units.is_metric:
-                    rate = rate * 0.0393700787
+                    if not self.hass.config.units.is_metric:
+                        rate = rate * 0.0393700787
 
-                new_state = round(rate, 2)
+                    new_state = round(rate, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'temp':
-                temperature = float(self.data[4])
+                if self.data[4] != '-':
+                    temperature = float(self.data[4])
 
-                if not self.hass.config.units.is_metric:
-                    temperature = convert_temperature(
-                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                    if not self.hass.config.units.is_metric:
+                        temperature = convert_temperature(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
-                new_state = round(temperature, 2)
-                
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
+
             elif dev.type == 'temp_indoor':
-                temperature = float(self.data[12])
+                if self.data[12] != '-':
+                    temperature = float(self.data[12])
 
-                if not self.hass.config.units.is_metric:
-                    temperature = convert_temperature(
-                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                    if not self.hass.config.units.is_metric:
+                        temperature = convert_temperature(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
-                new_state = round(temperature, 2)                
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_speed':
-                speed = float(self.data[1])
+                if self.data[1] != '-':
+                    speed = float(self.data[1])
 
-                if self.hass.config.units.is_metric:
-                    speed = speed * 1.85166
+                    if self.hass.config.units.is_metric:
+                        speed = speed * 1.85166
+                    else:
+                        speed = speed * 1.1507794
+
+                    new_state = round(speed, 2)
                 else:
-                    speed = speed * 1.1507794
-
-                new_state = round(speed, 2)
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_gust_hour':
-                gust = float(self.data[133])
+                if self.data[133] != '-':
+                    gust = float(self.data[133])
 
-                if self.hass.config.units.is_metric:
-                    gust = gust * 1.85166
+                    if self.hass.config.units.is_metric:
+                        gust = gust * 1.85166
+                    else:
+                        gust = gust * 1.1507794
+
+                    new_state = round(gust, 2)
                 else:
-                    gust = gust * 1.1507794
+                    new_state = STATE_UNAVAILABLE
 
-                new_state = round(gust, 2)
-                
             elif dev.type == 'wind_gust_day':
-                gust = float(self.data[71])
+                if self.data[71] != '-':
+                    gust = float(self.data[71])
 
-                if self.hass.config.units.is_metric:
-                    gust = gust * 1.85166
+                    if self.hass.config.units.is_metric:
+                        gust = gust * 1.85166
+                    else:
+                        gust = gust * 1.1507794
+
+                    new_state = round(gust, 2)
                 else:
-                    gust = gust * 1.1507794
-
-                new_state = round(gust, 2)                
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'pressure':
-                pressure = float(self.data[6])
+                if self.data[6] != '-':
+                    pressure = float(self.data[6])
 
-                if not self.hass.config.units.is_metric:
-                    pressure = round(convert_pressure(
-                        pressure, PRESSURE_HPA, PRESSURE_INHG), 2)
+                    if not self.hass.config.units.is_metric:
+                        pressure = round(convert_pressure(
+                            pressure, PRESSURE_HPA, PRESSURE_INHG), 2)
 
-                new_state = round(pressure, 2)
+                    new_state = round(pressure, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_degrees':
-                new_state = float(self.data[3])
+                if self.data[3] != '-':
+                    new_state = float(self.data[3])
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_dir':
-                direction = float(self.data[3])
-                val = int((direction / 22.5) + .5)
-                arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-                       "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
-                new_state = arr[(val % 16)]
+                if self.data[3] != '-':
+                    direction = float(self.data[3])
+                    val = int((direction / 22.5) + .5)
+                    arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                           "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+                    new_state = arr[(val % 16)]
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'humidity':
-                new_state = float(self.data[5])
-                
+                if self.data[5] != '-':
+                    new_state = float(self.data[5])
+                else:
+                    new_state = STATE_UNAVAILABLE
+
             elif dev.type == 'humidity_indoor':
-                new_state = float(self.data[13])                
+                if self.data[13] != '-':
+                    new_state = float(self.data[13])
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'cloud_height':
-                height = float(self.data[73])
+                if self.data[73] != '-':
+                    height = float(self.data[73])
 
-                if not self.hass.config.units.is_metric:
-                    height = convert_distance(
-                        height, LENGTH_METERS, LENGTH_FEET)
+                    if not self.hass.config.units.is_metric:
+                        height = convert_distance(
+                            height, LENGTH_METERS, LENGTH_FEET)
 
-                new_state = round(height, 2)
+                    new_state = round(height, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'dewpoint':
-                temperature = float(self.data[72])
+                if self.data[72] != '-':
+                    temperature = float(self.data[72])
 
-                if not self.hass.config.units.is_metric:
-                    temperature = convert_temperature(
-                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                    if not self.hass.config.units.is_metric:
+                        temperature = convert_temperature(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
-                new_state = round(temperature, 2)
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'heat_index':
-                temperature = float(self.data[112])
+                if self.data[112] != '-':
+                    temperature = float(self.data[112])
 
-                if not self.hass.config.units.is_metric:
-                    temperature = convert_temperature(
-                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                    if not self.hass.config.units.is_metric:
+                        temperature = convert_temperature(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
-                new_state = round(temperature, 2)
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'humidex':
-                temperature = float(self.data[44])
+                if self.data[44] != '-':
+                    temperature = float(self.data[44])
 
-                if not self.hass.config.units.is_metric:
-                    temperature = convert_temperature(
-                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                    if not self.hass.config.units.is_metric:
+                        temperature = convert_temperature(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
-                new_state = round(temperature, 2)
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'forecast':
-                val = int(self.data[15])
-                arr = ["sunny", "clear night", "cloudy", "cloudy2",
-                       "night cloudy", "dry", "fog", "haze", "heavy rain",
-                       "mainly fine", "mist", "night fog", "night heavy rain",
-                       "night overcast", "night rain", "night showers",
-                       "night snow", "night thunder", "overcast",
-                       "partly cloudy", "rain", "rain2", "showers", "sleet",
-                       "sleet showers", "snow", "snow melt", "snow showers2",
-                       "sunny", "thunder showers", "thunder showers2",
-                       "thunder storms", "tornado", "windy",
-                       "stopped raining", "windy rain", "sunrise", "sunset"]
-                new_state = arr[(val)] if val < len(arr) else "unknown"
+                if self.data[15] != '-':
+                    val = int(self.data[15])
+                    arr = ["sunny", "clear night", "cloudy", "cloudy2",
+                           "night cloudy", "dry", "fog", "haze", "heavy rain",
+                           "mainly fine", "mist", "night fog", "night heavy rain",
+                           "night overcast", "night rain", "night showers",
+                           "night snow", "night thunder", "overcast",
+                           "partly cloudy", "rain", "rain2", "showers", "sleet",
+                           "sleet showers", "snow", "snow melt", "snow showers2",
+                           "sunny", "thunder showers", "thunder showers2",
+                           "thunder storms", "tornado", "windy",
+                           "stopped raining", "windy rain", "sunrise", "sunset"]
+                    new_state = arr[(val)] if val < len(arr) else STATE_UNKNOWN
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'temp_day_max':
-                temperature = float(self.data[46])
+                if self.data[46] != '-':
+                    temperature = float(self.data[46])
 
-                if not self.hass.config.units.is_metric:
-                    temperature = convert_temperature(
-                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                    if not self.hass.config.units.is_metric:
+                        temperature = convert_temperature(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
-                new_state = round(temperature, 2)
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'temp_day_min':
-                temperature = float(self.data[47])
+                if self.data[47] != '-':
+                    temperature = float(self.data[47])
 
-                if not self.hass.config.units.is_metric:
-                    temperature = convert_temperature(
-                        temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                    if not self.hass.config.units.is_metric:
+                        temperature = convert_temperature(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
-                new_state = round(temperature, 2)
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             _LOGGER.debug("%s %s", dev.type, new_state)
 
