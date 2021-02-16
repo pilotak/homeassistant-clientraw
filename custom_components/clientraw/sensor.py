@@ -8,11 +8,12 @@ import aiohttp
 import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import PLATFORM_SCHEMA, DOMAIN as SENSOR_DOMAIN
 from homeassistant.const import (
     CONF_MONITORED_CONDITIONS, TEMP_CELSIUS, TEMP_FAHRENHEIT, PRESSURE_HPA,
     PRESSURE_INHG, LENGTH_METERS, LENGTH_FEET, LENGTH_INCHES, ATTR_ATTRIBUTION)
 from homeassistant.util import dt as dt_util
+from homeassistant.util import slugify
 from homeassistant.util.pressure import convert as convert_pressure
 from homeassistant.util.temperature import convert as convert_temperature
 from homeassistant.util.distance import convert as convert_distance
@@ -46,11 +47,11 @@ SENSOR_TYPES = {
     'daily_rain': ['Daily Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'yesterday_rain': ['Yesterday Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'monthly_rain': ['Monthly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
-    'yearly_rain': ['Yearly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],    	    	
+    'yearly_rain': ['Yearly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'rain_rate': ['Rain Rate', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'pressure': ['Pressure', PRESSURE_HPA, PRESSURE_INHG, 'mdi:trending-up'],
     'humidity': ['Humidity', '%', '%', 'mdi:water-percent'],
-    'humidity_indoor': ['Indoor Humidity', '%', '%', 'mdi:water-percent'],	
+    'humidity_indoor': ['Indoor Humidity', '%', '%', 'mdi:water-percent'],
     'cloud_height': ['Cloud Height', LENGTH_METERS, LENGTH_FEET,
                      'mdi:cloud-outline'],
     'forecast': ['Forecast', None, None, "mdi:card-text-outline"]
@@ -106,11 +107,17 @@ class ClientrawSensor(Entity):
         self._imperial_unit_of_measurement = SENSOR_TYPES[self.type][2]
         self._icon = SENSOR_TYPES[self.type][3]
         self._is_metric = is_metric
+        self._unique_id = slugify(f"{SENSOR_DOMAIN}.{name}_{sensor_type}")
 
     @property
     def name(self):
         """Return the name of the sensor."""
         return '{} {}'.format(self.client_name, self._name)
+
+    @property
+    def unique_id(self):
+        """Return the unique ID of the sensor."""
+        return self._unique_id
 
     @property
     def state(self):
