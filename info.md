@@ -29,6 +29,7 @@ Configuration variables:
   - **wind_gust_hour**: Wind Gust last hour (km/h or mph)
   - **wind_gust_day**: Wind Gust last day (km/h or mph)
   - **wind_speed**: Wind Speed (km/h or mph)
+  - **wind_speed_avg_10min**: 10 Min Avg Wind Speed (km/h or mph)
   - **symbol**: Symbol
   - **daily_rain**: Daily Rain (mm or in)
   - **yesterday_rain**: Yesterday Rain (mm or in)
@@ -62,6 +63,7 @@ sensor:
       - wind_gust_hour
       - wind_gust_day
       - wind_speed
+      - wind_speed_avg_10min
       - symbol
       - rain_rate
       - daily_rain
