@@ -202,7 +202,10 @@ class ClientrawData(object):
             new_state = None
 
             if dev.type == 'symbol':
-                new_state = int(self.data[48])
+                if self.data[48] != '-':
+                    new_state = int(self.data[48])
+                else:
+                    new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'daily_rain':
                 if self.data[7] != '-':
