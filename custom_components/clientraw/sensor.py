@@ -8,7 +8,9 @@ import aiohttp
 import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
-from homeassistant.components.sensor import PLATFORM_SCHEMA, DOMAIN as SENSOR_DOMAIN
+from homeassistant.components.sensor import (
+    PLATFORM_SCHEMA,
+    DOMAIN as SENSOR_DOMAIN)
 from homeassistant.const import (
     CONF_MONITORED_CONDITIONS, TEMP_CELSIUS, TEMP_FAHRENHEIT, PRESSURE_HPA,
     PRESSURE_INHG, LENGTH_METERS, LENGTH_FEET, LENGTH_INCHES, ATTR_ATTRIBUTION,
@@ -34,20 +36,28 @@ SENSOR_TYPES = {
     'heat_index': ['Heat index', TEMP_CELSIUS, TEMP_FAHRENHEIT,
                    'mdi:thermometer'],
     'temp': ['Temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
-    'temp_indoor': ['Indoor Temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
-    'temp_day_max': ['Today MAX temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
-    'temp_day_min': ['Today MIN temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
+    'temp_indoor': ['Indoor Temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                    'mdi:thermometer'],
+    'temp_day_max': ['Today MAX temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                     'mdi:thermometer'],
+    'temp_day_min': ['Today MIN temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                     'mdi:thermometer'],
     'humidex': ['Humidex', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
     'wind_degrees': ['Wind Degrees', '°', '°', 'mdi:subdirectory-arrow-right'],
     'wind_dir': ['Wind Direction', None, None, 'mdi:subdirectory-arrow-right'],
-    'wind_gust_hour': ['Wind Gust last hour', 'km/h', 'mph', 'mdi:weather-windy'],
-    'wind_gust_day'	: ['Wind Gust last day', 'km/h', 'mph', 'mdi:weather-windy'],
+    'wind_gust_hour': ['Wind Gust last hour', 'km/h', 'mph',
+                       'mdi:weather-windy'],
+    'wind_gust_day': ['Wind Gust last day', 'km/h', 'mph',
+                      'mdi:weather-windy'],
     'wind_speed': ['Wind Speed', 'km/h', 'mph', 'mdi:weather-windy-variant'],
-    'wind_speed_avg_10min': ['10 Min Avg Wind Speed', 'km/h', 'mph', 'mdi:weather-windy-variant'],
+    'wind_speed_avg_10min': ['10 Min Avg Wind Speed', 'km/h', 'mph',
+                             'mdi:weather-windy-variant'],
     'symbol': ['Symbol', None, None, 'mdi:triangle-outline'],
     'daily_rain': ['Daily Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
-    'yesterday_rain': ['Yesterday Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
-    'monthly_rain': ['Monthly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
+    'yesterday_rain': ['Yesterday Rain', 'mm', LENGTH_INCHES,
+                       'mdi:weather-rainy'],
+    'monthly_rain': ['Monthly Rain', 'mm', LENGTH_INCHES,
+                     'mdi:weather-rainy'],
     'yearly_rain': ['Yearly Rain', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'rain_rate': ['Rain Rate', 'mm', LENGTH_INCHES, 'mdi:weather-rainy'],
     'pressure': ['Pressure', PRESSURE_HPA, PRESSURE_INHG, 'mdi:trending-up'],
@@ -311,7 +321,6 @@ class ClientrawData(object):
                     new_state = round(speed, 2)
                 else:
                     new_state = STATE_UNAVAILABLE
-                    
 
             elif dev.type == 'wind_gust_hour':
                 if self.data[133] != '-':
@@ -432,14 +441,16 @@ class ClientrawData(object):
                     val = int(self.data[15])
                     arr = ["sunny", "clear night", "cloudy", "cloudy2",
                            "night cloudy", "dry", "fog", "haze", "heavy rain",
-                           "mainly fine", "mist", "night fog", "night heavy rain",
-                           "night overcast", "night rain", "night showers",
-                           "night snow", "night thunder", "overcast",
-                           "partly cloudy", "rain", "rain2", "showers", "sleet",
-                           "sleet showers", "snow", "snow melt", "snow showers2",
-                           "sunny", "thunder showers", "thunder showers2",
+                           "mainly fine", "mist", "night fog",
+                           "night heavy rain", "night overcast", "night rain",
+                           "night showers", "night snow", "night thunder",
+                           "overcast", "partly cloudy", "rain", "rain2",
+                           "showers", "sleet", "sleet showers", "snow",
+                           "snow melt", "snow showers2", "sunny",
+                           "thunder showers", "thunder showers2",
                            "thunder storms", "tornado", "windy",
-                           "stopped raining", "windy rain", "sunrise", "sunset"]
+                           "stopped raining", "windy rain", "sunrise",
+                           "sunset"]
                     new_state = arr[(val)] if val < len(arr) else STATE_UNKNOWN
                 else:
                     new_state = STATE_UNAVAILABLE
