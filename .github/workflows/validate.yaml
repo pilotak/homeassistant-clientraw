@@ -19,7 +19,7 @@ jobs:
         uses: "actions/checkout@v2"
 
       - name: Check PEP8
-        uses: rahul-deepsource/pyaction
+        uses: rahul-deepsource/pyaction@1.4.0
         with:
           python-root-list: "custom_components/"
           use-pycodestyle: true
