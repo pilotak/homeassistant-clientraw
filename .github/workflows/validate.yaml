@@ -18,6 +18,12 @@ jobs:
       - name: Checkout
         uses: "actions/checkout@v2"
 
+      - name: Check PEP8
+        - uses: rahul-deepsource/pyaction
+          with:
+            python-root-list: "custom_components/"
+            use-pycodestyle: true
+
       - name: HACS validation
         uses: hacs/action@main
         with:
