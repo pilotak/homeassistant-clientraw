@@ -21,7 +21,7 @@ jobs:
           VERSION=${VERSION//v}
 
           echo "## :bookmark_tabs: Changes" >>"CHANGELOG.md"
-          git log --pretty=format:"- %s %H%n" $(git describe --abbrev=0 --tags $(git describe --tags --abbrev=0)^)...$(git describe --tags --abbrev=0) >>"CHANGELOG.md"
+          git log --pretty=format:"- %s%n" $(git describe --abbrev=0 --tags $(git describe --tags --abbrev=0)^)...$(git describe --tags --abbrev=0) >>"CHANGELOG.md"
 
           echo ::set-output name=version::${VERSION}
 
@@ -31,7 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Version ${{ steps.prepare.outputs.version }}
+          release_name: ${{ steps.prepare.outputs.version }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
