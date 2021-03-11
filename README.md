@@ -32,7 +32,8 @@ Configuration variables:
   - **wind_dir**: Wind Direction as string ie.: N, NW, etc.
   - **wind_gust_hour**: Wind Gust in last hour (km/h or mph)
   - **wind_gust_day**: Wind Gust in last day (km/h or mph)
-  - **wind_speed**: Wind Speed (km/h or mph)
+  - **wind_speed**: Current Wind Speed (km/h or mph)
+  - **wind_speed_average**: Last 60 Sec Avg Wind Speed (km/h or mph)
   - **wind_speed_avg_10min**: 10 Min Avg Wind Speed (km/h or mph)
   - **symbol**: Symbol
   - **daily_rain**: Daily Rain (mm or in)

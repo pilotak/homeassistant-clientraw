@@ -50,6 +50,8 @@ SENSOR_TYPES = {
     'wind_gust_day': ['Wind Gust last day', 'km/h', 'mph',
                       'mdi:weather-windy'],
     'wind_speed': ['Wind Speed', 'km/h', 'mph', 'mdi:weather-windy-variant'],
+    'wind_speed_average': ['60s Avg Wind Speed', 'km/h', 'mph',
+                           'mdi:weather-windy-variant'],
     'wind_speed_avg_10min': ['10 Min Avg Wind Speed', 'km/h', 'mph',
                              'mdi:weather-windy-variant'],
     'symbol': ['Symbol', None, None, 'mdi:triangle-outline'],
@@ -297,6 +299,19 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_speed':
+                if self.data[2] != '-':
+                    speed = float(self.data[2])
+
+                    if self.hass.config.units.is_metric:
+                        speed = speed * 1.85166
+                    else:
+                        speed = speed * 1.1507794
+
+                    new_state = round(speed, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'wind_speed_average':
                 if self.data[1] != '-':
                     speed = float(self.data[1])
 
