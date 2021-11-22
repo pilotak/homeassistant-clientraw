@@ -471,7 +471,7 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'temp_day_max':
-                if self.data[46] != '-' and self.data[46] != '--' and self.data46] != '---':
+                if self.data[46] != '-' and self.data[46] != '--' and self.data[46] != '---':
                     temperature = float(self.data[46])
 
                     if not self.hass.config.units.is_metric:
