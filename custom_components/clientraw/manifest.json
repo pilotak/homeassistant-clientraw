@@ -6,5 +6,6 @@
   "issue_tracker": "https://github.com/pilotak/homeassistant-clientraw/issues",
   "requirements": [],
   "dependencies": [],
-  "codeowners": ["@pilotak"]
+  "codeowners": ["@pilotak"],
+  "iot_class": "cloud_polling"
 }

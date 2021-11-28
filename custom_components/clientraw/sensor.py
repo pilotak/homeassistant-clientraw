@@ -214,13 +214,15 @@ class ClientrawData(object):
             new_state = None
 
             if dev.type == 'symbol':
-                if self.data[48] != '-':
+                if self.data[48] != '-' and self.data[48] != '--' \
+                        and self.data[48] != '---':
                     new_state = int(self.data[48])
                 else:
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'daily_rain':
-                if self.data[7] != '-':
+                if self.data[7] != '-' and self.data[7] != '--' \
+                        and self.data[7] != '---':
                     rain = float(self.data[7])
 
                     if not self.hass.config.units.is_metric:
@@ -231,7 +233,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'yesterday_rain':
-                if self.data[19] != '-':
+                if self.data[19] != '-' and self.data[19] != '--' \
+                        and self.data[19] != '---':
                     rain = float(self.data[19])
 
                     if not self.hass.config.units.is_metric:
@@ -242,7 +245,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'monthly_rain':
-                if self.data[8] != '-':
+                if self.data[8] != '-' and self.data[8] != '--' \
+                        and self.data[8] != '---':
                     rain = float(self.data[8])
 
                     if not self.hass.config.units.is_metric:
@@ -253,7 +257,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'yearly_rain':
-                if self.data[9] != '-':
+                if self.data[9] != '-' and self.data[9] != '--' \
+                        and self.data[9] != '---':
                     rain = float(self.data[9])
 
                     if not self.hass.config.units.is_metric:
@@ -264,7 +269,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'rain_rate':
-                if self.data[10] != '-':
+                if self.data[10] != '-' and self.data[10] != '--' \
+                        and self.data[10] != '---':
                     rate = float(self.data[10])
 
                     if not self.hass.config.units.is_metric:
@@ -275,7 +281,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'temp':
-                if self.data[4] != '-':
+                if self.data[4] != '-' and self.data[4] != '--' \
+                        and self.data[4] != '---':
                     temperature = float(self.data[4])
 
                     if not self.hass.config.units.is_metric:
@@ -287,7 +294,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'temp_indoor':
-                if self.data[12] != '-':
+                if self.data[12] != '-' and self.data[12] != '--' \
+                        and self.data[12] != '---':
                     temperature = float(self.data[12])
 
                     if not self.hass.config.units.is_metric:
@@ -299,7 +307,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_speed':
-                if self.data[2] != '-':
+                if self.data[2] != '-' and self.data[2] != '--' \
+                        and self.data[2] != '---':
                     speed = float(self.data[2])
 
                     if self.hass.config.units.is_metric:
@@ -312,7 +321,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_speed_average':
-                if self.data[1] != '-':
+                if self.data[1] != '-' and self.data[1] != '--' \
+                        and self.data[1] != '---':
                     speed = float(self.data[1])
 
                     if self.hass.config.units.is_metric:
@@ -325,7 +335,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_speed_avg_10min':
-                if self.data[158] != '-':
+                if self.data[158] != '-' and self.data[158] != '--' \
+                        and self.data[158] != '---':
                     speed = float(self.data[158])
 
                     if self.hass.config.units.is_metric:
@@ -338,7 +349,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_gust_hour':
-                if self.data[133] != '-':
+                if self.data[133] != '-' and self.data[133] != '--' \
+                        and self.data[133] != '---':
                     gust = float(self.data[133])
 
                     if self.hass.config.units.is_metric:
@@ -351,7 +363,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_gust_day':
-                if self.data[71] != '-':
+                if self.data[71] != '-' and self.data[71] != '--' \
+                        and self.data[71] != '---':
                     gust = float(self.data[71])
 
                     if self.hass.config.units.is_metric:
@@ -364,7 +377,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'pressure':
-                if self.data[6] != '-':
+                if self.data[6] != '-' and self.data[6] != '--' \
+                        and self.data[6] != '---':
                     pressure = float(self.data[6])
 
                     if not self.hass.config.units.is_metric:
@@ -376,13 +390,15 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_degrees':
-                if self.data[3] != '-':
+                if self.data[3] != '-' and self.data[3] != '--' \
+                        and self.data[3] != '---':
                     new_state = float(self.data[3])
                 else:
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'wind_dir':
-                if self.data[3] != '-':
+                if self.data[3] != '-' and self.data[3] != '--' \
+                        and self.data[3] != '---':
                     direction = float(self.data[3])
                     val = int((direction / 22.5) + .5)
                     arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
@@ -392,19 +408,22 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'humidity':
-                if self.data[5] != '-':
+                if self.data[5] != '-' and self.data[5] != '--' \
+                        and self.data[5] != '---':
                     new_state = float(self.data[5])
                 else:
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'humidity_indoor':
-                if self.data[13] != '-':
+                if self.data[13] != '-' and self.data[13] != '--' \
+                        and self.data[13] != '---':
                     new_state = float(self.data[13])
                 else:
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'cloud_height':
-                if self.data[73] != '-':
+                if self.data[73] != '-' and self.data[73] != '--' \
+                        and self.data[73] != '---':
                     height = float(self.data[73])
 
                     if not self.hass.config.units.is_metric:
@@ -416,7 +435,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'dewpoint':
-                if self.data[72] != '-':
+                if self.data[72] != '-' and self.data[72] != '--' \
+                        and self.data[72] != '---':
                     temperature = float(self.data[72])
 
                     if not self.hass.config.units.is_metric:
@@ -428,7 +448,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'heat_index':
-                if self.data[112] != '-':
+                if self.data[112] != '-' and self.data[112] != '--' \
+                        and self.data[112] != '---':
                     temperature = float(self.data[112])
 
                     if not self.hass.config.units.is_metric:
@@ -440,7 +461,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'humidex':
-                if self.data[44] != '-':
+                if self.data[44] != '-' and self.data[44] != '--' \
+                        and self.data[44] != '---':
                     temperature = float(self.data[44])
 
                     if not self.hass.config.units.is_metric:
@@ -452,7 +474,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'forecast':
-                if self.data[15] != '-':
+                if self.data[15] != '-' and self.data[15] != '--' \
+                        and self.data[15] != '---':
                     val = int(self.data[15])
                     arr = ["sunny", "clear night", "cloudy", "cloudy2",
                            "night cloudy", "dry", "fog", "haze", "heavy rain",
@@ -471,7 +494,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'temp_day_max':
-                if self.data[46] != '-':
+                if self.data[46] != '-' and self.data[46] != '--' \
+                        and self.data[46] != '---':
                     temperature = float(self.data[46])
 
                     if not self.hass.config.units.is_metric:
@@ -483,7 +507,8 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'temp_day_min':
-                if self.data[47] != '-':
+                if self.data[47] != '-' and self.data[47] != '--' \
+                        and self.data[47] != '---':
                     temperature = float(self.data[47])
 
                     if not self.hass.config.units.is_metric:
