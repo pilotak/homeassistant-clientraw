@@ -1,6 +1,6 @@
 {
   "name": "Clientraw weather parser",
-  "homeassistant": "0.103.0",
+  "homeassistant": "2022.2",
   "domains": ["sensor"],
   "iot_class": "cloud_poll"
 }
