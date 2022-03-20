@@ -46,6 +46,8 @@ Configuration variables:
   - **humidity_indoor**: Relative humidity (%)
   - **cloud_height**: Cloud Height (m or ft)
   - **forecast**: string based output ie.: night showers
+  - **station**: string with station name and time added
+  - **date**: current date  
 
 ## Install via [HACS](https://github.com/custom-components/hacs)
 You can find this integration in a store.
@@ -96,6 +98,8 @@ sensor:
       - humidity_indoor
       - cloud_height
       - forecast
+      - station
+      - date
 ```
 Symbol codes:
 ```
