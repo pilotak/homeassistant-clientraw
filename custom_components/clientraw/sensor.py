@@ -528,7 +528,7 @@ class ClientrawData(object):
                     date = str(self.data[74])
                     new_state = date
                 else:
-                    new_state = STATE_UNAVAILABLE                    
+                    new_state = STATE_UNAVAILABLE
 
             _LOGGER.debug("%s %s", dev.type, new_state)
 
@@ -541,3 +541,4 @@ class ClientrawData(object):
             await asyncio.wait(tasks, loop=self.hass.loop)
 
         async_call_later(self.hass, self._interval * 60, self.async_update)
+        
