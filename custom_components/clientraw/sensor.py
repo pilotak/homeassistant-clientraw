@@ -541,4 +541,3 @@ class ClientrawData(object):
             await asyncio.wait(tasks, loop=self.hass.loop)
 
         async_call_later(self.hass, self._interval * 60, self.async_update)
-        
