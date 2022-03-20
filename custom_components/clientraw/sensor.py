@@ -67,7 +67,9 @@ SENSOR_TYPES = {
     'humidity_indoor': ['Indoor Humidity', '%', '%', 'mdi:water-percent'],
     'cloud_height': ['Cloud Height', LENGTH_METERS, LENGTH_FEET,
                      'mdi:cloud-outline'],
-    'forecast': ['Forecast', None, None, "mdi:card-text-outline"]
+    'forecast': ['Forecast', None, None, "mdi:card-text-outline"],
+    'station': ['Station', None, None, "mdi:home-thermometer-outline"],
+    'date': ['Date', None, None, "mdi:calendar"]
 }
 
 CONF_URL = 'url'
@@ -509,6 +511,22 @@ class ClientrawData(object):
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
                     new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'station':
+                if self.data[32] != '-' and self.data[32] != '--' \
+                        and self.data[32] != '---':
+                    station = str(self.data[32])
+                    new_state = station
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'date':
+                if self.data[74] != '-' and self.data[74] != '--' \
+                        and self.data[74] != '---':
+                    date = str(self.data[74])
+                    new_state = date
                 else:
                     new_state = STATE_UNAVAILABLE
 
