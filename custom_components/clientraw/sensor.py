@@ -538,6 +538,6 @@ class ClientrawData(object):
                 tasks.append(dev.async_update_ha_state())
 
         if tasks:
-            await asyncio.wait(tasks, loop=self.hass.loop)
+            await asyncio.wait(tasks)
 
         async_call_later(self.hass, self._interval * 60, self.async_update)
