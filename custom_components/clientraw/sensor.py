@@ -23,8 +23,9 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import (async_track_utc_time_change,
                                          async_call_later)
+from homeassistant.util.unit_system import METRIC_SYSTEM
 
-__version__ = '2.2.4'
+__version__ = '2.3.0'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,7 +100,7 @@ async def async_setup_platform(hass, config, async_add_entities,
     dev = []
     for sensor_type in config[CONF_MONITORED_CONDITIONS]:
         dev.append(ClientrawSensor(
-            hass.config.units.is_metric, sensor_type, name))
+            (hass.config.units is METRIC_SYSTEM), sensor_type, name))
     async_add_entities(dev)
 
     weather = ClientrawData(hass, url, interval, dev)
@@ -220,7 +221,7 @@ class ClientrawData(object):
                         and self.data[7] != '---':
                     rain = float(self.data[7])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         rain = rain * 0.0393700787
 
                     new_state = round(rain, 2)
@@ -232,7 +233,7 @@ class ClientrawData(object):
                         and self.data[19] != '---':
                     rain = float(self.data[19])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         rain = rain * 0.0393700787
 
                     new_state = round(rain, 2)
@@ -244,7 +245,7 @@ class ClientrawData(object):
                         and self.data[8] != '---':
                     rain = float(self.data[8])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         rain = rain * 0.0393700787
 
                     new_state = round(rain, 2)
@@ -256,7 +257,7 @@ class ClientrawData(object):
                         and self.data[9] != '---':
                     rain = float(self.data[9])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         rain = rain * 0.0393700787
 
                     new_state = round(rain, 2)
@@ -268,7 +269,7 @@ class ClientrawData(object):
                         and self.data[10] != '---':
                     rate = float(self.data[10])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         rate = rate * 0.0393700787
 
                     new_state = round(rate, 2)
@@ -280,7 +281,7 @@ class ClientrawData(object):
                         and self.data[4] != '---':
                     temperature = float(self.data[4])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = convert_temperature(
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
@@ -293,7 +294,7 @@ class ClientrawData(object):
                         and self.data[12] != '---':
                     temperature = float(self.data[12])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = convert_temperature(
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
@@ -306,7 +307,7 @@ class ClientrawData(object):
                         and self.data[2] != '---':
                     speed = float(self.data[2])
 
-                    if self.hass.config.units.is_metric:
+                    if self.hass.config.units is METRIC_SYSTEM:
                         speed = speed * 1.85166
                     else:
                         speed = speed * 1.1507794
@@ -320,7 +321,7 @@ class ClientrawData(object):
                         and self.data[1] != '---':
                     speed = float(self.data[1])
 
-                    if self.hass.config.units.is_metric:
+                    if self.hass.config.units is METRIC_SYSTEM:
                         speed = speed * 1.85166
                     else:
                         speed = speed * 1.1507794
@@ -334,7 +335,7 @@ class ClientrawData(object):
                         and self.data[158] != '---':
                     speed = float(self.data[158])
 
-                    if self.hass.config.units.is_metric:
+                    if self.hass.config.units is METRIC_SYSTEM:
                         speed = speed * 1.85166
                     else:
                         speed = speed * 1.1507794
@@ -348,7 +349,7 @@ class ClientrawData(object):
                         and self.data[133] != '---':
                     gust = float(self.data[133])
 
-                    if self.hass.config.units.is_metric:
+                    if self.hass.config.units is METRIC_SYSTEM:
                         gust = gust * 1.85166
                     else:
                         gust = gust * 1.1507794
@@ -362,7 +363,7 @@ class ClientrawData(object):
                         and self.data[71] != '---':
                     gust = float(self.data[71])
 
-                    if self.hass.config.units.is_metric:
+                    if self.hass.config.units is METRIC_SYSTEM:
                         gust = gust * 1.85166
                     else:
                         gust = gust * 1.1507794
@@ -376,7 +377,7 @@ class ClientrawData(object):
                         and self.data[6] != '---':
                     pressure = float(self.data[6])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         pressure = round(convert_pressure(
                             pressure, PRESSURE_HPA, PRESSURE_INHG), 2)
 
@@ -421,7 +422,7 @@ class ClientrawData(object):
                         and self.data[73] != '---':
                     height = float(self.data[73])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         height = convert_distance(
                             height, LENGTH_METERS, LENGTH_FEET)
 
@@ -434,7 +435,7 @@ class ClientrawData(object):
                         and self.data[72] != '---':
                     temperature = float(self.data[72])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = convert_temperature(
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
@@ -447,7 +448,7 @@ class ClientrawData(object):
                         and self.data[112] != '---':
                     temperature = float(self.data[112])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = convert_temperature(
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
@@ -460,7 +461,7 @@ class ClientrawData(object):
                         and self.data[44] != '---':
                     temperature = float(self.data[44])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = convert_temperature(
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
@@ -493,7 +494,7 @@ class ClientrawData(object):
                         and self.data[46] != '---':
                     temperature = float(self.data[46])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = convert_temperature(
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
@@ -506,7 +507,7 @@ class ClientrawData(object):
                         and self.data[47] != '---':
                     temperature = float(self.data[47])
 
-                    if not self.hass.config.units.is_metric:
+                    if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = convert_temperature(
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
