@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     CONF_MONITORED_CONDITIONS, TEMP_CELSIUS, TEMP_FAHRENHEIT, PRESSURE_HPA,
     PRESSURE_INHG, LENGTH_METERS, LENGTH_FEET, LENGTH_INCHES, STATE_UNKNOWN,
-    STATE_UNAVAILABLE )
+    STATE_UNAVAILABLE)
 from homeassistant.util import slugify
 from homeassistant.util.pressure import convert as convert_pressure
 from homeassistant.util.unit_conversion import TemperatureConverter
