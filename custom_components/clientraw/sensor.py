@@ -16,8 +16,8 @@ from homeassistant.const import (
     PRESSURE_INHG, LENGTH_METERS, LENGTH_FEET, LENGTH_INCHES, STATE_UNKNOWN,
     STATE_UNAVAILABLE)
 from homeassistant.util import slugify
-from homeassistant.util.unit_conversion import (TemperatureConverter,
-    PressureConverter)
+from homeassistant.util.unit_conversion import (
+    TemperatureConverter,PressureConverter)
 from homeassistant.util.distance import convert as convert_distance
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
