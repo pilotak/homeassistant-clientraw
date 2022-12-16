@@ -17,7 +17,7 @@ from homeassistant.const import (
     STATE_UNAVAILABLE)
 from homeassistant.util import slugify
 from homeassistant.util.unit_conversion import (
-    TemperatureConverter,PressureConverter)
+    TemperatureConverter, PressureConverter)
 from homeassistant.util.distance import convert as convert_distance
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
