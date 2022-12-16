@@ -16,8 +16,8 @@ from homeassistant.const import (
     PRESSURE_INHG, LENGTH_METERS, LENGTH_FEET, LENGTH_INCHES, STATE_UNKNOWN,
     STATE_UNAVAILABLE)
 from homeassistant.util import slugify
-from homeassistant.util.pressure import convert as convert_pressure
-from homeassistant.util.unit_conversion import TemperatureConverter
+from homeassistant.util.unit_conversion import (TemperatureConverter,
+    PressureConverter)
 from homeassistant.util.distance import convert as convert_distance
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
@@ -378,7 +378,7 @@ class ClientrawData(object):
                     pressure = float(self.data[6])
 
                     if self.hass.config.units is not METRIC_SYSTEM:
-                        pressure = round(convert_pressure(
+                        pressure = round(PressureConverter.convert(
                             pressure, PRESSURE_HPA, PRESSURE_INHG), 2)
 
                     new_state = round(pressure, 2)
