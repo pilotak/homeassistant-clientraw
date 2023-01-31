@@ -44,6 +44,9 @@ Configuration variables:
   - **forecast**: string based output ie.: night showers
   - **station**: station name with time added
   - **date**: current date
+  - **wind_chill**: Wind Chill (°C or °F)
+  - **wind_chill_max**: Today MAX Wind Chill (°C or °F)
+  - **wind_chill_min**: Today MIN Wind Chill (°C or °F)
 
 A full configuration example can be found below:
 
