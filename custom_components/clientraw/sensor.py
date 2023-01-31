@@ -71,9 +71,12 @@ SENSOR_TYPES = {
     'forecast': ['Forecast', None, None, "mdi:card-text-outline"],
     'station': ['Station', None, None, "mdi:home-thermometer-outline"],
     'date': ['Date', None, None, "mdi:calendar"],
-    'wind_chill': ['Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
-    'wind_chill_max': ['Today MAX Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
-    'wind_chill_min': ['Today MIN Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT, 'mdi:thermometer'],
+    'wind_chill': ['Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                   'mdi:thermometer'],
+    'wind_chill_max': ['Today MAX Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                       'mdi:thermometer'],
+    'wind_chill_min': ['Today MIN Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                       'mdi:thermometer'],
 }
 
 CONF_URL = 'url'
