@@ -25,7 +25,7 @@ from homeassistant.helpers.event import (async_track_utc_time_change,
                                          async_call_later)
 from homeassistant.util.unit_system import METRIC_SYSTEM
 
-__version__ = '2.3.1'
+__version__ = '2.4.0'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -70,7 +70,13 @@ SENSOR_TYPES = {
                      'mdi:cloud-outline'],
     'forecast': ['Forecast', None, None, "mdi:card-text-outline"],
     'station': ['Station', None, None, "mdi:home-thermometer-outline"],
-    'date': ['Date', None, None, "mdi:calendar"]
+    'date': ['Date', None, None, "mdi:calendar"],
+    'wind_chill': ['Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                   'mdi:thermometer'],
+    'wind_chill_max': ['Today MAX Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                       'mdi:thermometer'],
+    'wind_chill_min': ['Today MIN Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                       'mdi:thermometer'],
 }
 
 CONF_URL = 'url'
@@ -528,6 +534,45 @@ class ClientrawData(object):
                         and self.data[74] != '---':
                     date = str(self.data[74])
                     new_state = date
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'wind_chill':
+                if self.data[44] != '-' and self.data[44] != '--' \
+                        and self.data[44] != '---':
+                    temperature = float(self.data[44])
+
+                    if self.hass.config.units is not METRIC_SYSTEM:
+                        temperature = TemperatureConverter.convert(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'wind_chill_max':
+                if self.data[77] != '-' and self.data[77] != '--' \
+                        and self.data[77] != '---':
+                    temperature = float(self.data[77])
+
+                    if self.hass.config.units is not METRIC_SYSTEM:
+                        temperature = TemperatureConverter.convert(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+
+                    new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'wind_chill_min':
+                if self.data[78] != '-' and self.data[78] != '--' \
+                        and self.data[78] != '---':
+                    temperature = float(self.data[78])
+
+                    if self.hass.config.units is not METRIC_SYSTEM:
+                        temperature = TemperatureConverter.convert(
+                            temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+
+                    new_state = round(temperature, 2)
                 else:
                     new_state = STATE_UNAVAILABLE
 

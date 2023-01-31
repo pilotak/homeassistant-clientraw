@@ -47,7 +47,10 @@ Configuration variables:
   - **cloud_height**: Cloud Height (m or ft)
   - **forecast**: string based output ie.: night showers
   - **station**: station name with time added
-  - **date**: current date  
+  - **date**: current date
+  - **wind_chill**: Wind Chill (°C or °F)
+  - **wind_chill_max**: Today MAX Wind Chill (°C or °F)
+  - **wind_chill_min**: Today MIN Wind Chill (°C or °F) 
 
 ## Install via [HACS](https://github.com/custom-components/hacs)
 You can find this integration in a store.
