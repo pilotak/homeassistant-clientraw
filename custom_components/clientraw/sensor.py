@@ -581,7 +581,8 @@ class ClientrawData(object):
             # pylint: disable=protected-access
             if new_state != dev._state:
                 dev._state = new_state
-                tasks.append(asyncio.create_task(dev.async_update_ha_state(True)))
+                tasks.append(asyncio.create_task(
+                    dev.async_update_ha_state(True)))
 
         if tasks:
             await asyncio.wait(tasks)
