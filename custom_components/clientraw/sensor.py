@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     CONF_MONITORED_CONDITIONS, TEMP_CELSIUS, TEMP_FAHRENHEIT, PRESSURE_HPA,
     PRESSURE_INHG, LENGTH_METERS, LENGTH_FEET, LENGTH_INCHES, STATE_UNKNOWN,
-    STATE_UNAVAILABLE)
+    STATE_UNAVAILABLE, UV_INDEX, UnitOfIrradiance)
 from homeassistant.util import slugify
 from homeassistant.util.unit_conversion import (
     TemperatureConverter, PressureConverter)
@@ -77,6 +77,10 @@ SENSOR_TYPES = {
                        'mdi:thermometer'],
     'wind_chill_min': ['Today MIN Wind Chill', TEMP_CELSIUS, TEMP_FAHRENHEIT,
                        'mdi:thermometer'],
+    'vp_solar': ['VP solar', UnitOfIrradiance.WATTS_PER_SQUARE_METER,
+                 UnitOfIrradiance.BTUS_PER_HOUR_SQUARE_FOOT,
+                'mdi:solar-power'],
+    'uv_index': ['UV index', UV_INDEX, UV_INDEX, 'mdi:white-balance-sunny']
 }
 
 CONF_URL = 'url'
@@ -573,6 +577,25 @@ class ClientrawData(object):
                             temperature, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
                     new_state = round(temperature, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'vp_solar':
+                if self.data[127] != '-' and self.data[127] != '--' \
+                        and self.data[127] != '---':
+                    solar = float(self.data[127])
+
+                    if self.hass.config.units is not METRIC_SYSTEM:
+                        solar *= 0.3169983306
+
+                    new_state = round(solar, 2)
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'uv_index':
+                if self.data[79] != '-' and self.data[79] != '--' \
+                        and self.data[79] != '---':
+                    new_state = int(self.data[79])
                 else:
                     new_state = STATE_UNAVAILABLE
 
