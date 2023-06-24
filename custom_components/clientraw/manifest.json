@@ -1,11 +1,11 @@
 {
   "domain": "clientraw",
   "name": "Clientraw",
-  "version": "2.4.0",
+  "codeowners": ["@pilotak"],
+  "dependencies": [],
   "documentation": "https://github.com/pilotak/homeassistant-clientraw",
+  "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/pilotak/homeassistant-clientraw/issues",
   "requirements": [],
-  "dependencies": [],
-  "codeowners": ["@pilotak"],
-  "iot_class": "cloud_polling"
+  "version": "2.4.1"
 }

@@ -25,7 +25,7 @@ from homeassistant.helpers.event import (async_track_utc_time_change,
                                          async_call_later)
 from homeassistant.util.unit_system import METRIC_SYSTEM
 
-__version__ = '2.4.0'
+__version__ = '2.4.1'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -581,7 +581,8 @@ class ClientrawData(object):
             # pylint: disable=protected-access
             if new_state != dev._state:
                 dev._state = new_state
-                tasks.append(dev.async_update_ha_state())
+                tasks.append(asyncio.create_task(
+                    dev.async_update_ha_state(True)))
 
         if tasks:
             await asyncio.wait(tasks)
