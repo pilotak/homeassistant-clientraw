@@ -79,7 +79,7 @@ SENSOR_TYPES = {
                        'mdi:thermometer'],
     'vp_solar': ['VP solar', UnitOfIrradiance.WATTS_PER_SQUARE_METER,
                  UnitOfIrradiance.BTUS_PER_HOUR_SQUARE_FOOT,
-                'mdi:solar-power'],
+                 'mdi:solar-power'],
     'uv_index': ['UV index', UV_INDEX, UV_INDEX, 'mdi:white-balance-sunny']
 }
 
@@ -595,7 +595,7 @@ class ClientrawData(object):
             elif dev.type == 'uv_index':
                 if self.data[79] != '-' and self.data[79] != '--' \
                         and self.data[79] != '---':
-                    new_state = int(self.data[79])
+                    new_state = float(self.data[79])
                 else:
                     new_state = STATE_UNAVAILABLE
 
