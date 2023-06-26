@@ -50,7 +50,9 @@ Configuration variables:
   - **date**: current date
   - **wind_chill**: Wind Chill (°C or °F)
   - **wind_chill_max**: Today MAX Wind Chill (°C or °F)
-  - **wind_chill_min**: Today MIN Wind Chill (°C or °F) 
+  - **wind_chill_min**: Today MIN Wind Chill (°C or °F)
+  - **vp_solar**: Solar Irradiation (W/m² or BTU/(h×ft²))
+  - **uv_index**: UV Index
 
 ## Install via [HACS](https://github.com/custom-components/hacs)
 You can find this integration in a store.

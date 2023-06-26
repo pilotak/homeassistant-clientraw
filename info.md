@@ -47,6 +47,8 @@ Configuration variables:
   - **wind_chill**: Wind Chill (°C or °F)
   - **wind_chill_max**: Today MAX Wind Chill (°C or °F)
   - **wind_chill_min**: Today MIN Wind Chill (°C or °F)
+  - **vp_solar**: Solar Irradiation (W/m² or BTU/(h×ft²))
+  - **uv_index**: UV Index
 
 A full configuration example can be found below:
 
