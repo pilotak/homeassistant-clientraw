@@ -25,7 +25,7 @@ from homeassistant.helpers.event import (async_track_utc_time_change,
                                          async_call_later)
 from homeassistant.util.unit_system import METRIC_SYSTEM
 
-__version__ = '2.4.1'
+__version__ = '2.5.0'
 
 _LOGGER = logging.getLogger(__name__)
 
