@@ -17,7 +17,7 @@ from homeassistant.const import (
     STATE_UNAVAILABLE, UV_INDEX, UnitOfIrradiance)
 from homeassistant.util import slugify
 from homeassistant.util.unit_conversion import (
-    TemperatureConverter, PressureConverter)
+    TemperatureConverter, PressureConverter, DistanceConverter)
 from homeassistant.util.distance import convert as convert_distance
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
@@ -433,7 +433,7 @@ class ClientrawData(object):
                     height = float(self.data[73])
 
                     if self.hass.config.units is not METRIC_SYSTEM:
-                        height = convert_distance(
+                        height = DistanceConverter.convert(
                             height, LENGTH_METERS, LENGTH_FEET)
 
                     new_state = round(height, 2)
