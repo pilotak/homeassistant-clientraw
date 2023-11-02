@@ -18,14 +18,13 @@ from homeassistant.const import (
 from homeassistant.util import slugify
 from homeassistant.util.unit_conversion import (
     TemperatureConverter, PressureConverter, DistanceConverter)
-from homeassistant.util.distance import convert as convert_distance
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import (async_track_utc_time_change,
                                          async_call_later)
 from homeassistant.util.unit_system import METRIC_SYSTEM
 
-__version__ = '2.6.0'
+__version__ = '2.6.1'
 
 _LOGGER = logging.getLogger(__name__)
 
