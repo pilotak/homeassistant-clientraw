@@ -7,5 +7,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/pilotak/homeassistant-clientraw/issues",
   "requirements": [],
-  "version": "2.5.0"
+  "version": "2.6.0"
 }
