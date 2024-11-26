@@ -24,7 +24,7 @@ from homeassistant.helpers.event import (async_track_utc_time_change,
                                          async_call_later)
 from homeassistant.util.unit_system import METRIC_SYSTEM
 
-__version__ = '2.6.1'
+__version__ = '2.7.0'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -79,7 +79,13 @@ SENSOR_TYPES = {
     'vp_solar': ['VP solar', UnitOfIrradiance.WATTS_PER_SQUARE_METER,
                  UnitOfIrradiance.BTUS_PER_HOUR_SQUARE_FOOT,
                  'mdi:solar-power'],
-    'uv_index': ['UV index', UV_INDEX, UV_INDEX, 'mdi:white-balance-sunny']
+    'uv_index': ['UV index', UV_INDEX, UV_INDEX, 'mdi:white-balance-sunny'],
+    'apparent_temp': ['Apparent temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT,
+                      'mdi:thermometer'],
+    'apparent_temp_min': ['Apparent temperature', TEMP_CELSIUS,
+                          TEMP_FAHRENHEIT, 'mdi:thermometer'],
+    'apparent_temp_max': ['Apparent temperature', TEMP_CELSIUS,
+                          TEMP_FAHRENHEIT, 'mdi:thermometer']
 }
 
 CONF_URL = 'url'
@@ -595,6 +601,27 @@ class ClientrawData(object):
                 if self.data[79] != '-' and self.data[79] != '--' \
                         and self.data[79] != '---':
                     new_state = float(self.data[79])
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'apparent_temp':
+                if self.data[130] != '-' and self.data[130] != '--' \
+                        and self.data[130] != '---':
+                    new_state = float(self.data[130])
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'apparent_temp_max':
+                if self.data[136] != '-' and self.data[136] != '--' \
+                        and self.data[136] != '---':
+                    new_state = float(self.data[136])
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'apparent_temp_min':
+                if self.data[137] != '-' and self.data[137] != '--' \
+                        and self.data[137] != '---':
+                    new_state = float(self.data[137])
                 else:
                     new_state = STATE_UNAVAILABLE
 
