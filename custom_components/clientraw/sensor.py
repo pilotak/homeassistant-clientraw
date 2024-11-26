@@ -82,10 +82,10 @@ SENSOR_TYPES = {
     'uv_index': ['UV index', UV_INDEX, UV_INDEX, 'mdi:white-balance-sunny'],
     'apparent_temp': ['Apparent temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT,
                       'mdi:thermometer'],
-    'apparent_temp_min': ['Apparent temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT,
-                          'mdi:thermometer'],
-    'apparent_temp_max': ['Apparent temperature', TEMP_CELSIUS, TEMP_FAHRENHEIT,
-                          'mdi:thermometer']
+    'apparent_temp_min': ['Apparent temperature', TEMP_CELSIUS,
+                          TEMP_FAHRENHEIT, 'mdi:thermometer'],
+    'apparent_temp_max': ['Apparent temperature', TEMP_CELSIUS,
+                          TEMP_FAHRENHEIT, 'mdi:thermometer']
 }
 
 CONF_URL = 'url'
