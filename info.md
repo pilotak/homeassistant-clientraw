@@ -49,6 +49,9 @@ Configuration variables:
   - **wind_chill_min**: Today MIN Wind Chill (°C or °F)
   - **vp_solar**: Solar Irradiation (W/m² or BTU/(h×ft²))
   - **uv_index**: UV Index
+  - **apparent_temp**: Apparent temperature (°C or °F)
+  - **apparent_temp_min**: Min pparent temperature (°C or °F)
+  - **apparent_temp_maz**: Max pparent temperature (°C or °F)
 
 A full configuration example can be found below:
 
