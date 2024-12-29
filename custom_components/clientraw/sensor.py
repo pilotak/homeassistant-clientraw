@@ -32,60 +32,181 @@ CONF_ATTRIBUTION = "Weather forecast delivered by your WD Clientraw enabled " \
     "weather station."
 
 SENSOR_TYPES = {
-    'dewpoint': ['Dewpoint', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT, 'mdi:weather-fog'],
-    'heat_index': ['Heat index', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT,
-                   'mdi:thermometer'],
-    'temp': ['Temperature', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT, 'mdi:thermometer'],
-    'temp_indoor': ['Indoor Temperature', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT,
-                    'mdi:thermometer'],
-    'temp_day_max': ['Today MAX temperature', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT,
-                     'mdi:thermometer'],
-    'temp_day_min': ['Today MIN temperature', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT,
-                     'mdi:thermometer'],
-    'humidex': ['Humidex', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT, 'mdi:thermometer'],
-    'wind_degrees': ['Wind Degrees', DEGREE, DEGREE, 'mdi:subdirectory-arrow-right'],
-    'wind_dir': ['Wind Direction', None, None, 'mdi:subdirectory-arrow-right'],
-    'wind_gust_hour': ['Wind Gust last hour', UnitOfSpeed.KILOMETERS_PER_HOUR, UnitOfSpeed.MILES_PER_HOUR,
-                       'mdi:weather-windy'],
-    'wind_gust_day': ['Wind Gust last day', UnitOfSpeed.KILOMETERS_PER_HOUR, UnitOfSpeed.MILES_PER_HOUR,
-                      'mdi:weather-windy'],
-    'wind_speed': ['Wind Speed', UnitOfSpeed.KILOMETERS_PER_HOUR, UnitOfSpeed.MILES_PER_HOUR, 'mdi:weather-windy-variant'],
-    'wind_speed_average': ['60s Avg Wind Speed', UnitOfSpeed.KILOMETERS_PER_HOUR, UnitOfSpeed.MILES_PER_HOUR,
-                           'mdi:weather-windy-variant'],
-    'wind_speed_avg_10min': ['10 Min Avg Wind Speed', UnitOfSpeed.KILOMETERS_PER_HOUR, UnitOfSpeed.MILES_PER_HOUR,
-                             'mdi:weather-windy-variant'],
-    'symbol': ['Symbol', None, None, 'mdi:triangle-outline'],
-    'daily_rain': ['Daily Rain', UnitOfLength.MILLIMETERS, UnitOfLength.INCHES, 'mdi:weather-rainy'],
-    'yesterday_rain': ['Yesterday Rain', UnitOfLength.MILLIMETERS, UnitOfLength.INCHES,
-                       'mdi:weather-rainy'],
-    'monthly_rain': ['Monthly Rain', UnitOfLength.MILLIMETERS, UnitOfLength.INCHES,
-                     'mdi:weather-rainy'],
-    'yearly_rain': ['Yearly Rain', UnitOfLength.MILLIMETERS, UnitOfLength.INCHES, 'mdi:weather-rainy'],
-    'rain_rate': ['Rain Rate', UnitOfLength.MILLIMETERS, UnitOfLength.INCHES, 'mdi:weather-rainy'],
-    'pressure': ['Pressure', UnitOfPressure.HPA, UnitOfPressure.INHG, 'mdi:trending-up'],
-    'humidity': ['Humidity', PERCENTAGE, PERCENTAGE, 'mdi:water-percent'],
-    'humidity_indoor': ['Indoor Humidity', PERCENTAGE, PERCENTAGE, 'mdi:water-percent'],
-    'cloud_height': ['Cloud Height', UnitOfLength.METERS, UnitOfLength.FEET,
-                     'mdi:cloud-outline'],
-    'forecast': ['Forecast', None, None, "mdi:card-text-outline"],
-    'station': ['Station', None, None, "mdi:home-thermometer-outline"],
-    'date': ['Date', None, None, "mdi:calendar"],
-    'wind_chill': ['Wind Chill', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT,
-                   'mdi:thermometer'],
-    'wind_chill_max': ['Today MAX Wind Chill', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT,
-                       'mdi:thermometer'],
-    'wind_chill_min': ['Today MIN Wind Chill', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT,
-                       'mdi:thermometer'],
-    'vp_solar': ['VP solar', UnitOfIrradiance.WATTS_PER_SQUARE_METER,
-                 UnitOfIrradiance.BTUS_PER_HOUR_SQUARE_FOOT,
-                 'mdi:solar-power'],
-    'uv_index': ['UV index', UV_INDEX, UV_INDEX, 'mdi:white-balance-sunny'],
-    'apparent_temp': ['Apparent temperature', UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT,
-                      'mdi:thermometer'],
-    'apparent_temp_min': ['Apparent temperature', UnitOfTemperature.CELSIUS,
-                          UnitOfTemperature.FAHRENHEIT, 'mdi:thermometer'],
-    'apparent_temp_max': ['Apparent temperature', UnitOfTemperature.CELSIUS,
-                          UnitOfTemperature.FAHRENHEIT, 'mdi:thermometer']
+    'dewpoint': [
+        'Dewpoint',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:weather-fog'],
+    'heat_index': [
+        'Heat index',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'temp': [
+        'Temperature',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'temp_indoor': [
+        'Indoor Temperature',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'temp_day_max': [
+        'Today MAX temperature',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'temp_day_min': [
+        'Today MIN temperature',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'humidex': [
+        'Humidex',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'wind_degrees': [
+        'Wind Degrees',
+        DEGREE,
+        DEGREE,
+        'mdi:subdirectory-arrow-right'],
+    'wind_dir': [
+        'Wind Direction',
+        None,
+        None,
+        'mdi:subdirectory-arrow-right'],
+    'wind_gust_hour': [
+        'Wind Gust last hour',
+        UnitOfSpeed.KILOMETERS_PER_HOUR,
+        UnitOfSpeed.MILES_PER_HOUR,
+        'mdi:weather-windy'],
+    'wind_gust_day': [
+        'Wind Gust last day',
+        UnitOfSpeed.KILOMETERS_PER_HOUR,
+        UnitOfSpeed.MILES_PER_HOUR,
+        'mdi:weather-windy'],
+    'wind_speed': [
+        'Wind Speed',
+        UnitOfSpeed.KILOMETERS_PER_HOUR,
+        UnitOfSpeed.MILES_PER_HOUR,
+        'mdi:weather-windy-variant'],
+    'wind_speed_average': [
+        '60s Avg Wind Speed',
+        UnitOfSpeed.KILOMETERS_PER_HOUR,
+        UnitOfSpeed.MILES_PER_HOUR,
+        'mdi:weather-windy-variant'],
+    'wind_speed_avg_10min': [
+        '10 Min Avg Wind Speed',
+        UnitOfSpeed.KILOMETERS_PER_HOUR,
+        UnitOfSpeed.MILES_PER_HOUR,
+        'mdi:weather-windy-variant'],
+    'symbol': [
+        'Symbol',
+        None,
+        None,
+        'mdi:triangle-outline'],
+    'daily_rain': [
+        'Daily Rain',
+        UnitOfLength.MILLIMETERS,
+        UnitOfLength.INCHES,
+        'mdi:weather-rainy'],
+    'yesterday_rain': [
+        'Yesterday Rain',
+        UnitOfLength.MILLIMETERS,
+        UnitOfLength.INCHES,
+        'mdi:weather-rainy'],
+    'monthly_rain': [
+        'Monthly Rain',
+        UnitOfLength.MILLIMETERS,
+        UnitOfLength.INCHES,
+        'mdi:weather-rainy'],
+    'yearly_rain': [
+        'Yearly Rain',
+        UnitOfLength.MILLIMETERS,
+        UnitOfLength.INCHES,
+        'mdi:weather-rainy'],
+    'rain_rate': [
+        'Rain Rate',
+        UnitOfLength.MILLIMETERS,
+        UnitOfLength.INCHES,
+        'mdi:weather-rainy'],
+    'pressure': [
+        'Pressure',
+        UnitOfPressure.HPA,
+        UnitOfPressure.INHG,
+        'mdi:trending-up'],
+    'humidity': [
+        'Humidity',
+        PERCENTAGE,
+        PERCENTAGE,
+        'mdi:water-percent'],
+    'humidity_indoor': [
+        'Indoor Humidity',
+        PERCENTAGE,
+        PERCENTAGE,
+        'mdi:water-percent'],
+    'cloud_height': [
+        'Cloud Height',
+        UnitOfLength.METERS,
+        UnitOfLength.FEET,
+        'mdi:cloud-outline'],
+    'forecast': [
+        'Forecast',
+        None,
+        None,
+        "mdi:card-text-outline"],
+    'station': [
+        'Station',
+        None,
+        None,
+        "mdi:home-thermometer-outline"],
+    'date': [
+        'Date',
+        None,
+        None,
+        "mdi:calendar"],
+    'wind_chill': [
+        'Wind Chill',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'wind_chill_max': [
+        'Today MAX Wind Chill',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'wind_chill_min': [
+        'Today MIN Wind Chill',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'vp_solar': [
+        'VP solar',
+        UnitOfIrradiance.WATTS_PER_SQUARE_METER,
+        UnitOfIrradiance.BTUS_PER_HOUR_SQUARE_FOOT,
+        'mdi:solar-power'],
+    'uv_index': [
+        'UV index',
+        UV_INDEX,
+        UV_INDEX,
+        'mdi:white-balance-sunny'],
+    'apparent_temp': [
+        'Apparent temperature',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'apparent_temp_min': [
+        'Apparent temperature',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer'],
+    'apparent_temp_max': [
+        'Apparent temperature',
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        'mdi:thermometer']
 }
 
 CONF_URL = 'url'
@@ -298,7 +419,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -311,7 +433,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -452,7 +575,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -465,7 +589,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -478,7 +603,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -511,7 +637,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -524,7 +651,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -553,7 +681,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -566,7 +695,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
@@ -579,7 +709,8 @@ class ClientrawData(object):
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(
-                            temperature, UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT)
+                            temperature, UnitOfTemperature.CELSIUS,
+                            UnitOfTemperature.FAHRENHEIT)
 
                     new_state = round(temperature, 2)
                 else:
