@@ -516,8 +516,12 @@ class ClientrawData(object):
                     pressure = float(self.data[6])
 
                     if self.hass.config.units is not METRIC_SYSTEM:
-                        pressure = round(PressureConverter.convert(
-                            pressure, UnitOfPressure.HPA, UnitOfPressure.INHG), 2)
+                        pressure = round(
+                            PressureConverter.convert(
+                                pressure,
+                                UnitOfPressure.HPA,
+                                UnitOfPressure.INHG),
+                            2)
 
                     new_state = round(pressure, 2)
                 else:
