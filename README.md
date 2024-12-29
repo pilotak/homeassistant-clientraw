@@ -55,7 +55,7 @@ Configuration variables:
   - **uv_index**: UV Index
   - **apparent_temp**: Apparent temperature (°C or °F)
   - **apparent_temp_min**: Min pparent temperature (°C or °F)
-  - **apparent_temp_maz**: Max pparent temperature (°C or °F)
+  - **apparent_temp_max**: Max pparent temperature (°C or °F)
 
 ## Install via [HACS](https://github.com/custom-components/hacs)
 You can find this integration in a store.
