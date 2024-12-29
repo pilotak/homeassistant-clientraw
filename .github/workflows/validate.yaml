@@ -18,6 +18,9 @@ jobs:
       - name: Checkout
         uses: "actions/checkout@v4"
 
+      - name: Check conventional commits
+        uses: webiny/action-conventional-commits@v1.3.0
+
       - name: Check PEP8
         uses: andymckay/pycodestyle-action@0.1.3
 
