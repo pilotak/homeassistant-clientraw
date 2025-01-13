@@ -24,7 +24,7 @@ from homeassistant.helpers.event import (async_track_utc_time_change,
                                          async_call_later)
 from homeassistant.util.unit_system import METRIC_SYSTEM
 
-__version__ = '2.7.1'
+__version__ = '2.8.0'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -144,6 +144,16 @@ SENSOR_TYPES = {
         'mdi:water-percent'],
     'humidity_indoor': [
         'Indoor Humidity',
+        PERCENTAGE,
+        PERCENTAGE,
+        'mdi:water-percent'],
+    'humidity_max': [
+        'Max Humidity',
+        PERCENTAGE,
+        PERCENTAGE,
+        'mdi:water-percent'],
+    'humidity_min': [
+        'Min Humidity',
         PERCENTAGE,
         PERCENTAGE,
         'mdi:water-percent'],
@@ -757,6 +767,20 @@ class ClientrawData(object):
                 if self.data[137] != '-' and self.data[137] != '--' \
                         and self.data[137] != '---':
                     new_state = float(self.data[137])
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'humidity_min':
+                if self.data[164] != '-' and self.data[164] != '--' \
+                        and self.data[164] != '---':
+                    new_state = float(self.data[164])
+                else:
+                    new_state = STATE_UNAVAILABLE
+
+            elif dev.type == 'humidity_max':
+                if self.data[163] != '-' and self.data[163] != '--' \
+                        and self.data[163] != '---':
+                    new_state = float(self.data[163])
                 else:
                     new_state = STATE_UNAVAILABLE
 

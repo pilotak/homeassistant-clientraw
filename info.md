@@ -40,6 +40,8 @@ Configuration variables:
   - **pressure**: Pressure (hPa or inHg)
   - **humidity**: Relative humidity (%)
   - **humidity_indoor**: Relative humidity (%)
+  - **humidity_max**: Max relative humidity (%)
+  - **humidity_min**: Min relative humidity (%)
   - **cloud_height**: Cloud Height (m or ft)
   - **forecast**: string based output ie.: night showers
   - **station**: station name with time added
@@ -50,8 +52,8 @@ Configuration variables:
   - **vp_solar**: Solar Irradiation (W/m² or BTU/(h×ft²))
   - **uv_index**: UV Index
   - **apparent_temp**: Apparent temperature (°C or °F)
-  - **apparent_temp_min**: Min pparent temperature (°C or °F)
-  - **apparent_temp_max**: Max pparent temperature (°C or °F)
+  - **apparent_temp_min**: Min apparent temperature (°C or °F)
+  - **apparent_temp_max**: Max apparent temperature (°C or °F)
 
 A full configuration example can be found below:
 
