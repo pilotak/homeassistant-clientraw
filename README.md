@@ -1,8 +1,26 @@
-# HomeAssistant component: `clientraw`
-[![Validate](https://github.com/pilotak/homeassistant-clientraw/workflows/Validate/badge.svg)](https://github.com/pilotak/homeassistant-clientraw/actions)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+# HomeAssistant component: `clientraw` - 2026-ready Fork
+
+## Overview
 
 The `clientraw` platform is WD Clientraw parser which can read data from your online weather station such a Davis Vantage PRO 2 (tested) and other generating clientraw.txt files
+
+This fork of the Clientraw integration updates the original code to be fully compatible with Home Assistant 2026+ and modern Python 3.13, addressing the following issues:
+
+ - Deprecated constants (TEMP_CELSIUS, PRESSURE_HPA, LENGTH_METERS, etc.) replaced with UnitOfTemperature, UnitOfPressure, UnitOfLength, etc.
+
+ - Blocking code in the event loop removed by moving setup to an executor
+
+ - Async updates and periodic refresh fully compatible with Home Assistant's async architecture
+
+ - Eliminates warnings like:
+
+```Detected blocking call to import_module ...```
+
+and runtime errors like:
+
+```TypeError: BaseEventLoop.call_soon_threadsafe() got an unexpected keyword argument 'minute'```
+
+## Installation
 
 To add clientraw to your installation, add the following to your `configuration.yaml` file:
 
@@ -58,9 +76,6 @@ Configuration variables:
   - **apparent_temp**: Apparent temperature (°C or °F)
   - **apparent_temp_min**: Min apparent temperature (°C or °F)
   - **apparent_temp_max**: Max apparent temperature (°C or °F)
-
-## Install via [HACS](https://github.com/custom-components/hacs)
-You can find this integration in a store.
 
 ## Install manually
 You need to copy `clientraw` folder from this repo to the `custom_components` folder in the root of your configuration, file tree should look like this:
@@ -152,3 +167,49 @@ Symbol codes:
 36 = sunrise
 37 = sunset
 ```
+
+## Key Changes
+
+ - Async-safe Setup
+
+ - The async_setup_platform now runs all blocking code inside hass.async_add_executor_job.
+
+ - Periodic updates (async_track_utc_time_change) use functools.partial to pass arguments safely from a thread to the main event loop.
+
+ - Initial update uses hass.async_create_task to avoid blocking.
+
+## Updated Constants
+
+Old constants removed in modern HA versions:
+
+| Old Constant | Replacement                     |
+|--------------|---------------------------------|
+| TEMP_CELSIUS | UnitOfTemperature.CELSIUS       |
+| TEMP_FAHRENHEIT | UnitOfTemperature.FAHRENHEIT |
+| PRESSURE_HPA	| UnitOfPressure.HPA             |
+| PRESSURE_INHG | UnitOfPressure.INHG            |
+| LENGTH_IN	| UnitOfLength.INCHES                |
+| LENGTH_METERS	| UnitOfLength.METERS            |
+| UV_INDEX	| UV_INDEX (unchanged)               |
+
+## Notes
+
+- This fork is fully backward compatible with previous Clientraw setups.
+
+- After updating, the integration should load without warnings or errors in Home Assistant logs.
+
+- Tested on Home Assistant 2026.1+ with Python 3.13.
+
+- If you encounter any issues, please check that old .pyc files have been cleared.
+
+## Patch Notes
+
+Version 2.8.1-HA2026
+
+- Moved platform setup into executor to remove blocking calls
+
+- Fixed async_track_utc_time_change call to support keyword arguments correctly
+
+- Replaced all deprecated HA constants with UnitOf… enums
+
+- Cleaned up caching issues to avoid loading old Python bytecode
