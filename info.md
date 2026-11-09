@@ -8,6 +8,8 @@ The next step shows all monitored conditions as checkboxes, prefilled from usabl
 
 Use **Configure** to edit the interval and conditions, optionally reviewing fresh detection suggestions. Use the entry's three-dot menu > **Reconfigure** to edit its URL or name without changing existing entity IDs. Multiple stations are supported with distinct URLs.
 
+Temperature, wind speed and gust, pressure, precipitation, rain rate and cloud height support Home Assistant's per-entity unit settings. Wind units include m/s, km/h, mph and knots. Initial defaults follow the existing metric or imperial settings. Humidity and solar irradiance also use their corresponding device classes.
+
 Each station's sensors are grouped under one device using the configured station name. Existing entities join the device on reload; changing the name or URL preserves device identity.
 
 ## Existing YAML installations
@@ -34,7 +36,7 @@ Existing Clientraw sensor YAML is automatically imported once, preserving its se
   - **yesterday_rain**: Yesterday Rain (mm or in)
   - **monthly_rain**: Monthly Rain (mm or in)
   - **yearly_rain**: Yearly Rain (mm or in)
-  - **rain_rate**: Rain rate (mm or in)
+  - **rain_rate**: Rain rate (mm/h or in/h)
   - **pressure**: Pressure (hPa or inHg)
   - **humidity**: Relative humidity (%)
   - **humidity_indoor**: Relative humidity (%)
@@ -55,5 +57,7 @@ Existing Clientraw sensor YAML is automatically imported once, preserving its se
   - **apparent_temp_max**: Max apparent temperature (°C or °F)
 
 Existing entries can enable **Last updated (last_updated)** in **Configure > Monitored conditions**. Date remains available for compatibility. Station now shows just the name, e.g. `TILSKI` instead of `TILSKI-15:12:24`.
+
+Rain rate now uses the correct mm/h or in/h label without changing its numeric value. Apparent temperatures now convert correctly to °F in imperial mode.
 
 For installation instructions and symbol codes, see the [README](README.md).

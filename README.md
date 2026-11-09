@@ -23,6 +23,7 @@ Each station's sensors are grouped under one device named after the configured s
 - Optionally select **Prefill a new conditions checklist from the URL** to review fresh suggestions before saving. This replaces your previous selection only after confirmation.
 - Use the entry's three-dot menu > **Reconfigure** to change the URL or station name. You can keep your current selection or review fresh detection suggestions.
 - Changing the URL or name preserves existing entity IDs. Multiple station entries are supported; each must use a different URL.
+- Temperature, wind speed and gust, atmospheric pressure, precipitation, rain rate, and cloud height sensors use Home Assistant device classes and support per-entity unit selection. For example, choose m/s, km/h, mph or knots in a wind sensor's settings. Initial units remain metric or imperial according to the existing defaults. Humidity and solar irradiance also use their corresponding device classes.
 
 ### Migrate an existing YAML installation
 
@@ -75,6 +76,8 @@ All existing conditions remain available in the checklist:
   - **apparent_temp_max**: Max apparent temperature (°C or °F)
 
 For existing entries, enable **Last updated (last_updated)** under **Configure > Monitored conditions**. The Date sensor is retained for compatibility. Station now omits a valid trailing `-HH:MM:SS`; names containing other hyphens are preserved. Missing or invalid date/time data makes Last updated unavailable.
+
+Rain rate is now labelled as a rate (mm/h or in/h rather than mm or in); its numeric values are unchanged. Apparent temperature values are now correctly converted to °F in imperial mode, so previously incorrect imperial readings change.
 
 ## Install via [HACS](https://github.com/custom-components/hacs)
 You can find this integration in a store.

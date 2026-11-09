@@ -26,6 +26,18 @@ from .coordinator import ClientrawCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+DEVICE_CLASSES = {
+    "timestamp": SensorDeviceClass.TIMESTAMP,
+    "temperature": SensorDeviceClass.TEMPERATURE,
+    "wind": SensorDeviceClass.WIND_SPEED,
+    "humidity": SensorDeviceClass.HUMIDITY,
+    "pressure": SensorDeviceClass.ATMOSPHERIC_PRESSURE,
+    "rain": SensorDeviceClass.PRECIPITATION,
+    "rain_rate": SensorDeviceClass.PRECIPITATION_INTENSITY,
+    "height": SensorDeviceClass.DISTANCE,
+    "solar": SensorDeviceClass.IRRADIANCE,
+}
+
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_URL): vol.All(cv.url, normalize_url),
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
@@ -84,8 +96,14 @@ class ClientrawSensor(CoordinatorEntity[ClientrawCoordinator], SensorEntity):
             name=entry.data[CONF_NAME],
         )
         self._attr_icon = self.condition.icon
-        if self.condition.kind == "timestamp":
-            self._attr_device_class = SensorDeviceClass.TIMESTAMP
+        if self.condition.kind in DEVICE_CLASSES:
+            self._attr_device_class = DEVICE_CLASSES[self.condition.kind]
+        if self.condition.kind in (
+                "temperature", "wind", "pressure", "rain", "rain_rate",
+                "height"):
+            self._attr_suggested_unit_of_measurement = (
+                self.condition.metric if self._metric
+                else self.condition.imperial)
         self._attr_native_unit_of_measurement = (
             self.condition.metric if self._metric else self.condition.imperial)
 

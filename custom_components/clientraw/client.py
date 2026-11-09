@@ -144,7 +144,7 @@ def parse_condition(fields: list[str], key: str,
                     else STATE_UNKNOWN)
         case "direction":
             return DIRECTIONS[int(value / 22.5 + .5) % 16]
-        case "number":
+        case "number" | "humidity":
             return value
         case "temperature":
             value = value if metric else TemperatureConverter.convert(
@@ -152,7 +152,7 @@ def parse_condition(fields: list[str], key: str,
                 UnitOfTemperature.FAHRENHEIT)
         case "wind":
             value *= 1.85166 if metric else 1.1507794
-        case "rain":
+        case "rain" | "rain_rate":
             value = value if metric else value * 0.0393700787
         case "pressure":
             value = value if metric else PressureConverter.convert(

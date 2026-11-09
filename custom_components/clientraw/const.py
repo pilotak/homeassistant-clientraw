@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from homeassistant.const import (
     DEGREE, PERCENTAGE, UV_INDEX, UnitOfIrradiance, UnitOfLength,
-    UnitOfPressure, UnitOfSpeed, UnitOfTemperature,
+    UnitOfPressure, UnitOfSpeed, UnitOfTemperature, UnitOfVolumetricFlux,
 )
 
 DOMAIN = "clientraw"
@@ -51,7 +51,7 @@ def rain(name: str, index: int) -> Condition:
 
 def humidity(name: str, index: int) -> Condition:
     """Describe a humidity field."""
-    return Condition(name, index, "number", PERCENTAGE, PERCENTAGE,
+    return Condition(name, index, "humidity", PERCENTAGE, PERCENTAGE,
                      "mdi:water-percent")
 
 
@@ -79,7 +79,10 @@ CONDITIONS = {
     "yesterday_rain": rain("Yesterday Rain", 19),
     "monthly_rain": rain("Monthly Rain", 8),
     "yearly_rain": rain("Yearly Rain", 9),
-    "rain_rate": rain("Rain Rate", 10),
+    "rain_rate": Condition(
+        "Rain Rate", 10, "rain_rate",
+        UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        UnitOfVolumetricFlux.INCHES_PER_HOUR, "mdi:weather-rainy"),
     "pressure": Condition("Pressure", 6, "pressure", UnitOfPressure.HPA,
                           UnitOfPressure.INHG, "mdi:trending-up"),
     "humidity": humidity("Humidity", 5),
@@ -105,16 +108,9 @@ CONDITIONS = {
                           "mdi:solar-power"),
     "uv_index": Condition("UV index", 79, "number", UV_INDEX, UV_INDEX,
                           "mdi:white-balance-sunny"),
-    # These fields historically expose the raw numeric values in either system.
-    "apparent_temp": Condition("Apparent temperature", 130, "number",
-                               UnitOfTemperature.CELSIUS,
-                               UnitOfTemperature.FAHRENHEIT),
-    "apparent_temp_min": Condition("Apparent temperature", 137, "number",
-                                   UnitOfTemperature.CELSIUS,
-                                   UnitOfTemperature.FAHRENHEIT),
-    "apparent_temp_max": Condition("Apparent temperature", 136, "number",
-                                   UnitOfTemperature.CELSIUS,
-                                   UnitOfTemperature.FAHRENHEIT),
+    "apparent_temp": temperature("Apparent temperature", 130),
+    "apparent_temp_min": temperature("Apparent temperature", 137),
+    "apparent_temp_max": temperature("Apparent temperature", 136),
 }
 
 FORECASTS = (

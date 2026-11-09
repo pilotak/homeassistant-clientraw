@@ -5,6 +5,7 @@ import aiohttp
 import pytest
 
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.const import UnitOfSpeed
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er, issue_registry as ir
 from homeassistant.setup import async_setup_component
@@ -16,6 +17,25 @@ from pytest_homeassistant_custom_component.common import (
 
 from custom_components.clientraw.client import endpoint_id, import_id
 from custom_components.clientraw.const import CONDITIONS, DOMAIN
+
+DEVICE_CLASSES = {
+    "temp": "temperature", "temp_indoor": "temperature",
+    "temp_day_max": "temperature", "temp_day_min": "temperature",
+    "dewpoint": "temperature", "heat_index": "temperature",
+    "humidex": "temperature", "wind_chill": "temperature",
+    "wind_chill_min": "temperature", "wind_chill_max": "temperature",
+    "apparent_temp": "temperature", "apparent_temp_min": "temperature",
+    "apparent_temp_max": "temperature", "humidity": "humidity",
+    "humidity_indoor": "humidity", "humidity_min": "humidity",
+    "humidity_max": "humidity", "pressure": "atmospheric_pressure",
+    "daily_rain": "precipitation", "yesterday_rain": "precipitation",
+    "monthly_rain": "precipitation", "yearly_rain": "precipitation",
+    "rain_rate": "precipitation_intensity", "cloud_height": "distance",
+    "vp_solar": "irradiance", "wind_speed": "wind_speed",
+    "wind_speed_average": "wind_speed", "wind_speed_avg_10min": "wind_speed",
+    "wind_gust_hour": "wind_speed", "wind_gust_day": "wind_speed",
+    "last_updated": "timestamp",
+}
 
 
 @pytest.mark.parametrize("imperial", [False, True])
@@ -34,8 +54,15 @@ async def test_every_sensor_and_unit_system(hass, entry, fetch, imperial):
     assert device.name == entry.data["name"]
     assert device.config_entries == {entry.entry_id}
     for entity in entities:
-        assert hass.states.get(entity.entity_id).state != "unavailable"
+        state = hass.states.get(entity.entity_id)
+        assert state.state != "unavailable"
         assert entity.device_id == device.id
+        key = entity.unique_id.removeprefix(f"{entry.entry_id}_")
+        assert state.attributes.get("device_class") == DEVICE_CLASSES.get(key)
+        if CONDITIONS[key].metric is not None:
+            assert state.attributes["unit_of_measurement"] == (
+                CONDITIONS[key].imperial if imperial else
+                CONDITIONS[key].metric)
     temperature = hass.states.get("sensor.clientraw_temperature")
     assert float(temperature.state) == (50 if imperial else 10)
     assert temperature.attributes["unit_of_measurement"] == (
@@ -44,6 +71,74 @@ async def test_every_sensor_and_unit_system(hass, entry, fetch, imperial):
     assert float(pressure.state) == (29.92 if imperial else 1013.25)
     assert pressure.attributes["unit_of_measurement"] == (
         "inHg" if imperial else "hPa")
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+@pytest.mark.parametrize("imperial", [False, True])
+async def test_corrected_apparent_temperature_and_rain_rate(
+    hass, entry, fetch, payload, imperial,
+):
+    if imperial:
+        hass.config.units = US_CUSTOMARY_SYSTEM
+    for key in ("apparent_temp", "apparent_temp_min", "apparent_temp_max"):
+        payload[CONDITIONS[key].index] = "-5"
+    payload[10] = "25.4"
+    selected = ["apparent_temp", "apparent_temp_min", "apparent_temp_max",
+                "rain_rate"]
+    hass.config_entries.async_update_entry(
+        entry, options={"monitored_conditions": selected})
+    registry = er.async_get(hass)
+    old_rate = registry.async_get_or_create(
+        "sensor", DOMAIN, f"{entry.entry_id}_rain_rate", config_entry=entry,
+        suggested_object_id="garden_rain_rate",
+    )
+    registry.async_update_entity(
+        old_rate.entity_id, unit_of_measurement="in" if imperial else "mm")
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    for key in selected[:3]:
+        entity_id = registry.async_get_entity_id(
+            "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+        state = hass.states.get(entity_id)
+        assert state.attributes["device_class"] == "temperature"
+        assert float(state.state) == (23 if imperial else -5)
+        assert state.attributes["unit_of_measurement"] == (
+            "°F" if imperial else "°C")
+    state = hass.states.get(old_rate.entity_id)
+    assert state.attributes["device_class"] == "precipitation_intensity"
+    assert state.attributes["unit_of_measurement"] == (
+        "in/h" if imperial else "mm/h")
+    assert float(state.state) == (1 if imperial else 25.4)
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+@pytest.mark.parametrize("key,raw,unit,expected", [
+    ("temp", "20", "°F", 68),
+    ("apparent_temp", "-5", "°F", 23),
+    ("pressure", "1013.25", "inHg", 29.92),
+    ("daily_rain", "25.4", "in", 1),
+    ("rain_rate", "25.4", "in/h", 1),
+    ("cloud_height", "100", "ft", 328.08),
+])
+async def test_sensor_unit_override(
+    hass, entry, fetch, payload, key, raw, unit, expected,
+):
+    payload[CONDITIONS[key].index] = raw
+    hass.config_entries.async_update_entry(
+        entry, options={"monitored_conditions": [key]})
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    registry = er.async_get(hass)
+    entity_id = registry.async_get_entity_id(
+        "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+    registry.async_update_entity_options(
+        entity_id, "sensor", {"unit_of_measurement": unit})
+    await hass.async_block_till_done()
+    state = hass.states.get(entity_id)
+    assert state.attributes["unit_of_measurement"] == unit
+    assert float(state.state) == pytest.approx(expected, abs=0.03)
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass.states.get(entity_id).attributes["unit_of_measurement"] == unit
     assert await hass.config_entries.async_unload(entry.entry_id)
 
 
@@ -67,6 +162,80 @@ async def test_station_and_last_updated(hass, entry, fetch, payload):
     assert hass.states.get("sensor.clientraw_last_updated").state == (
         "unavailable")
     assert hass.states.get("sensor.clientraw_station").state == "TILSKI"
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+@pytest.mark.parametrize("imperial", [False, True])
+async def test_wind_sensor_units_are_configurable(
+    hass, entry, fetch, payload, imperial,
+):
+    if imperial:
+        hass.config.units = US_CUSTOMARY_SYSTEM
+    wind_keys = [key for key, condition in CONDITIONS.items()
+                 if condition.kind == "wind"]
+    assert len(wind_keys) == 5
+    for key in wind_keys:
+        payload[CONDITIONS[key].index] = "10"
+    hass.config_entries.async_update_entry(
+        entry, options={"monitored_conditions": wind_keys})
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    registry = er.async_get(hass)
+    for key in wind_keys:
+        entity_id = registry.async_get_entity_id(
+            "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+        state = hass.states.get(entity_id)
+        assert state.attributes["device_class"] == "wind_speed"
+        assert state.attributes["unit_of_measurement"] == (
+            UnitOfSpeed.MILES_PER_HOUR if imperial
+            else UnitOfSpeed.KILOMETERS_PER_HOUR)
+        assert float(state.state) == (11.51 if imperial else 18.52)
+        registry.async_update_entity_options(
+            entity_id, "sensor", {"unit_of_measurement": "m/s"})
+    await hass.async_block_till_done()
+    for key in wind_keys:
+        entity_id = registry.async_get_entity_id(
+            "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+        state = hass.states.get(entity_id)
+        assert state.attributes["unit_of_measurement"] == "m/s"
+        assert float(state.state) == (5.15 if imperial else 5.14)
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    for key in wind_keys:
+        entity_id = registry.async_get_entity_id(
+            "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+        assert hass.states.get(
+            entity_id).attributes["unit_of_measurement"] == "m/s"
+    for unit, expected in (("kn", 10), ("mph", 11.51), ("km/h", 18.52)):
+        for key in wind_keys:
+            entity_id = registry.async_get_entity_id(
+                "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+            registry.async_update_entity_options(
+                entity_id, "sensor", {"unit_of_measurement": unit})
+        await hass.async_block_till_done()
+        for key in wind_keys:
+            entity_id = registry.async_get_entity_id(
+                "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+            state = hass.states.get(entity_id)
+            assert state.attributes["unit_of_measurement"] == unit
+            assert float(state.state) == pytest.approx(expected, abs=0.02)
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_existing_wind_sensor_preserves_id_and_unit(hass, entry, fetch):
+    registry = er.async_get(hass)
+    existing = registry.async_get_or_create(
+        "sensor", DOMAIN, f"{entry.entry_id}_wind_speed", config_entry=entry,
+        suggested_object_id="garden_wind")
+    hass.config_entries.async_update_entry(
+        entry, options={"monitored_conditions": ["wind_speed"]})
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    state = hass.states.get(existing.entity_id)
+    assert state.attributes["unit_of_measurement"] == "km/h"
+    assert state.attributes["device_class"] == "wind_speed"
+    assert registry.async_get(existing.entity_id).unique_id == (
+        f"{entry.entry_id}_wind_speed")
     assert await hass.config_entries.async_unload(entry.entry_id)
 
 

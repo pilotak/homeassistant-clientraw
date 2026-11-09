@@ -60,6 +60,7 @@ def test_bad_readings(payload, key, raw):
     ("dewpoint", "0", 0, 32),
     ("wind_speed", "10", 18.52, 11.51),
     ("daily_rain", "25.4", 25.4, 1),
+    ("rain_rate", "25.4", 25.4, 1),
     ("pressure", "1013.25", 1013.25, 29.92),
     ("cloud_height", "100", 100, 328.08),
     ("vp_solar", "100", 100, 31.7),
@@ -71,7 +72,9 @@ def test_bad_readings(payload, key, raw):
     ("station", "TILSKI-15:12:24", "TILSKI", "TILSKI"),
     ("station", "My-Station-15:12:24", "My-Station", "My-Station"),
     ("date", "09/11/2026", "09/11/2026", "09/11/2026"),
-    ("apparent_temp", "10.123", 10.123, 10.123),
+    ("apparent_temp", "10.123", 10.12, 50.22),
+    ("apparent_temp_min", "-5", -5, 23),
+    ("apparent_temp_max", "0", 0, 32),
 ])
 def test_existing_conversions(payload, key, raw, metric, imperial):
     payload[CONDITIONS[key].index] = raw
