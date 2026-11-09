@@ -1,22 +1,18 @@
 The `clientraw` platform is WD Clientraw parser which can read data from your online weather station such a Davis Vantage PRO 2 (tested) and other generating clientraw.txt files
 
-To add clientraw to your installation, add the following to your `configuration.yaml` file:
+## UI setup
 
-```yaml
-# Example configuration.yaml entry
-sensor:
-  - platform: clientraw
-    url: "http://example.com/clientraw.txt"
-    monitored_conditions:
-      - temp
-      - humidity
-```
+After installation, restart Home Assistant and open **Settings > Devices & services > Add integration > Clientraw**. Enter the full HTTP(S) URL of `clientraw.txt`, a station name (default: `clientraw`), and a polling interval (1-59 minutes; default: 15).
 
-Configuration variables:
+The next step shows all monitored conditions as checkboxes, prefilled from usable readings in the file. Detection is only a helper: check or uncheck any condition, including conditions with no current data. Zero is a valid reading, but can also be a station's placeholder for unsupported hardware. Your saved selection does not change automatically. Selected conditions with missing or invalid readings remain unavailable until usable data appears.
 
-- **url**: full path to clientraw.txt file
-- **interval**: poll interval in minutes (1-59), 15 min is default
-- **monitored_conditions** array: Conditions to display in the frontend.
+Use **Configure** to edit the interval and conditions, optionally reviewing fresh detection suggestions. Use the entry's three-dot menu > **Reconfigure** to edit its URL or name without changing existing entity IDs. Multiple stations are supported with distinct URLs.
+
+## Existing YAML installations
+
+Existing Clientraw sensor YAML is automatically imported once, preserving its settings, entity IDs, and customizations. Import does not require the station to be online. After verifying the imported entry works, remove only its old `sensor: - platform: clientraw` block from `configuration.yaml` and restart; do not delete the whole file. Repairs provides a reminder and reports migration conflicts. Old YAML will not overwrite subsequent UI changes. YAML is retained only as a migration bridge.
+
+## Supported monitored conditions
   - **dewpoint**: Dewpoint (°C or °F)
   - **heat_index**: Heat index (°C or °F)
   - **temp**: Temperature (°C or °F)
@@ -55,39 +51,4 @@ Configuration variables:
   - **apparent_temp_min**: Min apparent temperature (°C or °F)
   - **apparent_temp_max**: Max apparent temperature (°C or °F)
 
-A full configuration example can be found below:
-
-```yaml
-# Example configuration.yaml entry
-sensor:
-  - platform: clientraw
-    url: "http://example.com/clientraw.txt"
-    interval: 10
-    monitored_conditions:
-      - dewpoint
-      - heat_index
-      - temp
-      - temp_indoor
-      - temp_day_max
-      - temp_day_min
-      - humidex
-      - wind_degrees
-      - wind_dir
-      - wind_gust_hour
-      - wind_gust_day
-      - wind_speed
-      - wind_speed_avg_10min
-      - symbol
-      - rain_rate
-      - daily_rain
-      - yesterday_rain
-      - monthly_rain
-      - yearly_rain
-      - pressure
-      - humidity
-      - humidity_indoor
-      - cloud_height
-      - forecast
-      - station
-      - date
-```
+For installation instructions and symbol codes, see the [README](README.md).

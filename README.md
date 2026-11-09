@@ -4,23 +4,35 @@
 
 The `clientraw` platform is WD Clientraw parser which can read data from your online weather station such a Davis Vantage PRO 2 (tested) and other generating clientraw.txt files
 
-To add clientraw to your installation, add the following to your `configuration.yaml` file:
+## Set up through the UI
 
-```yaml
-# Example configuration.yaml entry
-sensor:
-  - platform: clientraw
-    url: "http://example.com/clientraw.txt"
-    monitored_conditions:
-      - temp
-      - humidity
-```
+1. Install the integration and restart Home Assistant.
+2. Open **Settings > Devices & services > Add integration > Clientraw**.
+3. Enter the full HTTP(S) URL of `clientraw.txt`, a station name (default: `clientraw`), and a polling interval (1-59 minutes; default: 15).
+4. Review the **Monitored conditions** checklist and submit.
 
-Configuration variables:
+The integration fetches the URL and preselects conditions with usable readings. This is only a setup helper: you can uncheck suggestions or check any other supported condition. Zero values and negative temperatures are valid readings. A station may report zero for unsupported hardware, so detection cannot establish which physical sensors are installed.
 
-- **url**: full path to clientraw.txt file
-- **interval**: poll interval in minutes (1-59), 15 min is default
-- **monitored_conditions** array: Conditions to display in the frontend.
+Your confirmed selection stays unchanged between polls. Manually selected conditions with missing or malformed readings are unavailable until usable data appears; other readings continue updating. You can intentionally leave the selection empty.
+
+### Change settings
+
+- Use **Configure** on the integration entry to change the polling interval and monitored conditions. The checklist starts with your saved selection.
+- Optionally select **Prefill a new conditions checklist from the URL** to review fresh suggestions before saving. This replaces your previous selection only after confirmation.
+- Use the entry's three-dot menu > **Reconfigure** to change the URL or station name. You can keep your current selection or review fresh detection suggestions.
+- Changing the URL or name preserves existing entity IDs. Multiple station entries are supported; each must use a different URL.
+
+### Migrate an existing YAML installation
+
+Existing `sensor: - platform: clientraw` configurations are automatically imported into UI entries on restart, including their name, URL, interval, and exact monitored conditions. Import can complete while the station is offline; Home Assistant retries connecting automatically.
+
+Existing entity IDs, registry customizations, and automation references are preserved. After checking that the imported entry works under **Settings > Devices & services**, remove only the old Clientraw sensor block from `configuration.yaml` and restart. **Do not delete the whole file or unrelated settings.** A Repairs warning reminds you to remove the block. The YAML path is retained only for migration, not for managing new installations.
+
+Leaving the old block temporarily in place will not create duplicate entries or overwrite later UI edits. If multiple legacy definitions conflict over an endpoint or entity, Repairs reports the conflict instead of overwriting or taking ownership of another entry's entities. Resolve the duplicate configuration before removing the affected YAML.
+
+## Supported monitored conditions
+
+All existing conditions remain available in the checklist:
   - **dewpoint**: Dewpoint (°C or °F)
   - **heat_index**: Heat index (°C or °F)
   - **temp**: Temperature (°C or °F)
@@ -69,49 +81,24 @@ You need to copy `clientraw` folder from this repo to the `custom_components` fo
 └── configuration.yaml
 └── custom_components
     └── clientraw
-        └── __init__.py
-        └── manifest.json
-        └── sensor.py
+        └── ... (all integration files, including translations/)
 ```
 
 >__Note__: if the `custom_components` directory does not exist, you need to create it.
 
-## A full configuration example
-```yaml
-# Example configuration.yaml entry
-sensor:
-  - platform: clientraw
-    url: "http://example.com/clientraw.txt"
-    interval: 10
-    monitored_conditions:
-      - dewpoint
-      - heat_index
-      - temp
-      - temp_indoor
-      - temp_day_max
-      - temp_day_min
-      - humidex
-      - wind_degrees
-      - wind_dir
-      - wind_gust_hour
-      - wind_gust_day
-      - wind_speed
-      - wind_speed_avg_10min
-      - symbol
-      - rain_rate
-      - daily_rain
-      - yesterday_rain
-      - monthly_rain
-      - yearly_rain
-      - pressure
-      - humidity
-      - humidity_indoor
-      - cloud_height
-      - forecast
-      - station
-      - date
+## Development
+
+The test suite uses Home Assistant 2024.12.4 on Python 3.12 to check compatibility with the declared 2024.12 minimum:
+
+```sh
+python -m pip install -r requirements-test.txt
+python -m pytest
+python -m pycodestyle custom_components/clientraw tests
 ```
-Symbol codes:
+
+Tests use deterministic clientraw fixtures; no live weather-station URL is required.
+
+## Symbol codes
 ```
 0 =  sunny
 1 =  clear night
