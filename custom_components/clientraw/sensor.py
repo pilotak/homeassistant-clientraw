@@ -8,6 +8,7 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.const import CONF_NAME, CONF_URL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, issue_registry as ir
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util.unit_system import METRIC_SYSTEM
 
@@ -71,6 +72,10 @@ class ClientrawSensor(CoordinatorEntity[ClientrawCoordinator], SensorEntity):
         self._metric = coordinator.hass.config.units is METRIC_SYSTEM
         self._attr_name = f"{entry.data[CONF_NAME]} {self.condition.name}"
         self._attr_unique_id = f"{entry.entry_id}_{key}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=entry.data[CONF_NAME],
+        )
         self._attr_icon = self.condition.icon
         self._attr_native_unit_of_measurement = (
             self.condition.metric if self._metric else self.condition.imperial)

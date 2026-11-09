@@ -15,6 +15,8 @@ The integration fetches the URL and preselects conditions with usable readings. 
 
 Your confirmed selection stays unchanged between polls. Manually selected conditions with missing or malformed readings are unavailable until usable data appears; other readings continue updating. You can intentionally leave the selection empty.
 
+Each station's sensors are grouped under one device named after the configured station. Existing entities join that device on reload without changing their entity IDs. Renaming the station or changing its URL keeps the same device.
+
 ### Change settings
 
 - Use **Configure** on the integration entry to change the polling interval and monitored conditions. The checklist starts with your saved selection.

@@ -8,6 +8,8 @@ The next step shows all monitored conditions as checkboxes, prefilled from usabl
 
 Use **Configure** to edit the interval and conditions, optionally reviewing fresh detection suggestions. Use the entry's three-dot menu > **Reconfigure** to edit its URL or name without changing existing entity IDs. Multiple stations are supported with distinct URLs.
 
+Each station's sensors are grouped under one device using the configured station name. Existing entities join the device on reload; changing the name or URL preserves device identity.
+
 ## Existing YAML installations
 
 Existing Clientraw sensor YAML is automatically imported once, preserving its settings, entity IDs, and customizations. Import does not require the station to be online. After verifying the imported entry works, remove only its old `sensor: - platform: clientraw` block from `configuration.yaml` and restart; do not delete the whole file. Repairs provides a reminder and reports migration conflicts. Old YAML will not overwrite subsequent UI changes. YAML is retained only as a migration bridge.

@@ -5,6 +5,7 @@ import aiohttp
 import pytest
 
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er, issue_registry as ir
 from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util, slugify
@@ -28,8 +29,13 @@ async def test_every_sensor_and_unit_system(hass, entry, fetch, imperial):
     registry = er.async_get(hass)
     entities = er.async_entries_for_config_entry(registry, entry.entry_id)
     assert len(entities) == 37
+    device = dr.async_get(hass).async_get_device({(DOMAIN, entry.entry_id)})
+    assert device is not None
+    assert device.name == entry.data["name"]
+    assert device.config_entries == {entry.entry_id}
     for entity in entities:
         assert hass.states.get(entity.entity_id).state != "unavailable"
+        assert entity.device_id == device.id
     temperature = hass.states.get("sensor.clientraw_temperature")
     assert float(temperature.state) == (50 if imperial else 10)
     assert temperature.attributes["unit_of_measurement"] == (
@@ -58,6 +64,22 @@ async def test_sensors_and_forced_missing(hass, entry, fetch, payload):
     await entry.runtime_data.async_refresh()
     await hass.async_block_till_done()
     assert hass.states.get("sensor.clientraw_min_humidity").state == "30.0"
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_existing_ui_entity_joins_device(hass, entry, fetch):
+    registry = er.async_get(hass)
+    existing = registry.async_get_or_create(
+        "sensor", DOMAIN, f"{entry.entry_id}_temp", config_entry=entry,
+        suggested_object_id="my_temperature")
+    assert existing.device_id is None
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    updated = registry.async_get(existing.entity_id)
+    device = dr.async_get(hass).async_get_device({(DOMAIN, entry.entry_id)})
+    assert updated.device_id == device.id
+    assert updated.unique_id == existing.unique_id
+    assert hass.states.get(existing.entity_id).state == "10.0"
     assert await hass.config_entries.async_unload(entry.entry_id)
 
 
@@ -133,6 +155,8 @@ async def test_legacy_entity_id_migration(hass, entry, fetch):
     assert migrated.config_entry_id == entry.entry_id
     assert migrated.name == "My custom label"
     assert migrated.icon == "mdi:star"
+    device = dr.async_get(hass).async_get_device({(DOMAIN, entry.entry_id)})
+    assert migrated.device_id == device.id
     assert "legacy_name" not in entry.data
     assert hass.states.get(legacy.entity_id).state == "10.0"
     assert await hass.config_entries.async_reload(entry.entry_id)
@@ -170,6 +194,16 @@ async def test_multiple_stations_same_name(hass, entry, fetch):
     assert hass.states.get("sensor.clientraw_temperature_2") is not None
     assert entry.runtime_data is not other.runtime_data
     assert fetch[0].await_count == 2
+    devices = dr.async_get(hass)
+    first = devices.async_get_device({(DOMAIN, entry.entry_id)})
+    second = devices.async_get_device({(DOMAIN, other.entry_id)})
+    assert first is not None and second is not None
+    assert first.id != second.id
+    registry = er.async_get(hass)
+    assert registry.async_get(
+        "sensor.clientraw_temperature").device_id == first.id
+    assert registry.async_get(
+        "sensor.clientraw_temperature_2").device_id == second.id
     assert await hass.config_entries.async_unload(entry.entry_id)
     assert await hass.config_entries.async_unload(other.entry_id)
 

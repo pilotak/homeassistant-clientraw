@@ -8,6 +8,7 @@ import pytest
 from homeassistant.config_entries import SOURCE_IMPORT, SOURCE_RECONFIGURE
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers import device_registry as dr
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.clientraw.client import (
@@ -198,6 +199,9 @@ async def test_options_redetect_failure(hass, entry, fetch):
 @pytest.mark.parametrize("redetect", [True, False])
 async def test_reconfigure_preserves_identity(hass, entry, fetch, redetect):
     assert await hass.config_entries.async_setup(entry.entry_id)
+    devices = dr.async_get(hass)
+    original_device = devices.async_get_device({(DOMAIN, entry.entry_id)})
+    assert original_device is not None
     before = hass.states.get("sensor.clientraw_temperature")
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_RECONFIGURE,
@@ -217,6 +221,9 @@ async def test_reconfigure_preserves_identity(hass, entry, fetch, redetect):
     after = hass.states.get(before.entity_id)
     assert after is not None
     assert after.attributes["friendly_name"] == "New station Temperature"
+    device = devices.async_get_device({(DOMAIN, entry.entry_id)})
+    assert device.id == original_device.id
+    assert device.name == "New station"
     assert entry.options.get("monitored_conditions") == (
         ["temp"] if redetect else None)
     assert await hass.config_entries.async_unload(entry.entry_id)
