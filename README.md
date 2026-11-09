@@ -62,8 +62,9 @@ All existing conditions remain available in the checklist:
   - **humidity_min**: Min relative humidity (%)
   - **cloud_height**: Cloud Height (m or ft; source field is feet)
   - **forecast**: string based output ie.: night showers
-  - **station**: station name with time added
+  - **station**: station name without the trailing update time (for example, `TILSKI`)
   - **date**: current date
+  - **last_updated**: station update timestamp combining the date (`day/month/year`) and time in the station field, interpreted in Home Assistant's configured timezone. This is the feed's timestamp, not the integration's last poll time.
   - **wind_chill**: Wind Chill (°C or °F)
   - **wind_chill_max**: Today MAX Wind Chill (°C or °F)
   - **wind_chill_min**: Today MIN Wind Chill (°C or °F)
@@ -72,6 +73,8 @@ All existing conditions remain available in the checklist:
   - **apparent_temp**: Apparent temperature (°C or °F)
   - **apparent_temp_min**: Min apparent temperature (°C or °F)
   - **apparent_temp_max**: Max apparent temperature (°C or °F)
+
+For existing entries, enable **Last updated (last_updated)** under **Configure > Monitored conditions**. The Date sensor is retained for compatibility. Station now omits a valid trailing `-HH:MM:SS`; names containing other hyphens are preserved. Missing or invalid date/time data makes Last updated unavailable.
 
 ## Install via [HACS](https://github.com/custom-components/hacs)
 You can find this integration in a store.

@@ -28,7 +28,7 @@ async def test_every_sensor_and_unit_system(hass, entry, fetch, imperial):
     await hass.async_block_till_done()
     registry = er.async_get(hass)
     entities = er.async_entries_for_config_entry(registry, entry.entry_id)
-    assert len(entities) == 37
+    assert len(entities) == len(CONDITIONS)
     device = dr.async_get(hass).async_get_device({(DOMAIN, entry.entry_id)})
     assert device is not None
     assert device.name == entry.data["name"]
@@ -44,6 +44,29 @@ async def test_every_sensor_and_unit_system(hass, entry, fetch, imperial):
     assert float(pressure.state) == (29.92 if imperial else 1013.25)
     assert pressure.attributes["unit_of_measurement"] == (
         "inHg" if imperial else "hPa")
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_station_and_last_updated(hass, entry, fetch, payload):
+    await hass.config.async_set_time_zone("Europe/Oslo")
+    payload[32] = "TILSKI-15:12:24"
+    payload[74] = "9/11/2026"
+    hass.config_entries.async_update_entry(entry, options={
+        "monitored_conditions": ["station", "date", "last_updated"],
+    })
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass.states.get("sensor.clientraw_station").state == "TILSKI"
+    assert hass.states.get("sensor.clientraw_date").state == "9/11/2026"
+    updated = hass.states.get("sensor.clientraw_last_updated")
+    assert updated.state == "2026-11-09T14:12:24+00:00"
+    assert updated.attributes["device_class"] == "timestamp"
+    payload[74] = "---"
+    await entry.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get("sensor.clientraw_last_updated").state == (
+        "unavailable")
+    assert hass.states.get("sensor.clientraw_station").state == "TILSKI"
     assert await hass.config_entries.async_unload(entry.entry_id)
 
 

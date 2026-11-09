@@ -1,15 +1,19 @@
 """Clientraw sensors and the temporary YAML import bridge."""
 
 import logging
+from datetime import datetime
 
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
+from homeassistant.components.sensor import (
+    PLATFORM_SCHEMA, SensorDeviceClass, SensorEntity,
+)
 from homeassistant.const import CONF_NAME, CONF_URL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, issue_registry as ir
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 from homeassistant.util.unit_system import METRIC_SYSTEM
 
 from . import ClientrawConfigEntry
@@ -70,6 +74,9 @@ class ClientrawSensor(CoordinatorEntity[ClientrawCoordinator], SensorEntity):
         self.key = key
         self.condition = CONDITIONS[key]
         self._metric = coordinator.hass.config.units is METRIC_SYSTEM
+        self._station_timezone = dt_util.get_time_zone(
+            coordinator.hass.config.time_zone)
+        assert self._station_timezone is not None
         self._attr_name = f"{entry.data[CONF_NAME]} {self.condition.name}"
         self._attr_unique_id = f"{entry.entry_id}_{key}"
         self._attr_device_info = DeviceInfo(
@@ -77,12 +84,16 @@ class ClientrawSensor(CoordinatorEntity[ClientrawCoordinator], SensorEntity):
             name=entry.data[CONF_NAME],
         )
         self._attr_icon = self.condition.icon
+        if self.condition.kind == "timestamp":
+            self._attr_device_class = SensorDeviceClass.TIMESTAMP
         self._attr_native_unit_of_measurement = (
             self.condition.metric if self._metric else self.condition.imperial)
 
     @property
-    def native_value(self) -> str | float | int | None:
-        return parse_condition(self.coordinator.data, self.key, self._metric)
+    def native_value(self) -> str | float | int | datetime | None:
+        return parse_condition(
+            self.coordinator.data, self.key, self._metric,
+            self._station_timezone)
 
     @property
     def available(self) -> bool:

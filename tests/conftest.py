@@ -25,7 +25,7 @@ def payload():
     fields[4] = "10"
     fields[5] = "55"
     fields[6] = "1013.25"
-    fields[32] = "Test_Station"
+    fields[32] = "Test_Station-15:12:24"
     fields[74] = "09/11/2026"
     return fields + ["!!C10.37S!!"]
 

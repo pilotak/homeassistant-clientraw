@@ -1,9 +1,11 @@
 """Fetching and parsing shared by configuration and runtime."""
 
 import asyncio
+from datetime import datetime, timezone, tzinfo
 from hashlib import sha256
 import logging
 import math
+import re
 from urllib.parse import urlsplit, urlunsplit
 
 import aiohttp
@@ -20,6 +22,20 @@ from homeassistant.util.unit_conversion import (
 from .const import CONDITIONS, DIRECTIONS, FORECASTS, MISSING_VALUES
 
 _LOGGER = logging.getLogger(__name__)
+STATION_TIME = re.compile(
+    r"(?P<name>.+)-(?P<time>[0-9]{2}:[0-9]{2}:[0-9]{2})")
+
+
+def split_station(raw: str) -> tuple[str, str | None]:
+    """Split only a trailing valid clock, preserving hyphens in names."""
+    if match := STATION_TIME.fullmatch(raw):
+        try:
+            datetime.strptime(match["time"], "%H:%M:%S")
+        except ValueError:
+            _LOGGER.debug("Invalid clock in Clientraw station field")
+        else:
+            return match["name"], match["time"]
+    return raw, None
 
 
 class InvalidClientraw(ValueError):
@@ -80,7 +96,9 @@ async def async_fetch(hass: HomeAssistant, url: str) -> list[str]:
 
 
 def parse_condition(fields: list[str], key: str,
-                    metric: bool = True) -> str | float | int | None:
+                    metric: bool = True,
+                    station_timezone: tzinfo = timezone.utc,
+                    ) -> str | float | int | datetime | None:
     """Return a reading, or None for a missing/invalid individual field."""
     condition = CONDITIONS[key]
     if condition.index >= len(fields):
@@ -90,6 +108,22 @@ def parse_condition(fields: list[str], key: str,
         return None
     if condition.kind == "text":
         return raw
+    if condition.kind == "station":
+        return split_station(raw)[0]
+    if condition.kind == "timestamp":
+        clock = split_station(raw)[1]
+        date_index = CONDITIONS["date"].index
+        if clock is None or date_index >= len(fields):
+            _LOGGER.debug("Missing date or time for Clientraw last updated")
+            return None
+        try:
+            updated = datetime.strptime(
+                f"{fields[date_index]} {clock}", "%d/%m/%Y %H:%M:%S")
+        except ValueError:
+            _LOGGER.debug("Invalid date for Clientraw last updated")
+            return None
+        return updated.replace(
+            tzinfo=station_timezone).astimezone(timezone.utc)
     try:
         value = float(raw)
         if not math.isfinite(value):

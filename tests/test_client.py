@@ -1,7 +1,9 @@
 """Regression coverage for every existing field and conversion."""
 
 import asyncio
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
+from zoneinfo import ZoneInfo
 
 import aiohttp
 import pytest
@@ -25,6 +27,7 @@ FIELDS = {
     "wind_chill_max": 77, "wind_chill_min": 78, "vp_solar": 127,
     "uv_index": 79, "apparent_temp": 130, "apparent_temp_min": 137,
     "apparent_temp_max": 136,
+    "last_updated": 32,
 }
 
 
@@ -32,7 +35,8 @@ FIELDS = {
 def test_mapping_and_detection(payload, key, index):
     assert set(FIELDS) == set(CONDITIONS)
     assert CONDITIONS[key].index == index
-    payload[index] = "0"
+    payload[index] = (
+        "Test-15:12:24" if key == "last_updated" else "0")
     assert key in detect_conditions(payload)
     assert parse_condition(payload, key) is not None
     payload[index] = "---"
@@ -43,7 +47,8 @@ def test_mapping_and_detection(payload, key, index):
 @pytest.mark.parametrize("key", CONDITIONS)
 @pytest.mark.parametrize("raw", ["-", "--", "---", "nan", "inf", "bad"])
 def test_bad_readings(payload, key, raw):
-    if CONDITIONS[key].kind == "text" and raw not in ("-", "--", "---"):
+    if (CONDITIONS[key].kind in ("text", "station")
+            and raw not in ("-", "--", "---")):
         return
     payload[CONDITIONS[key].index] = raw
     assert parse_condition(payload, key) is None
@@ -63,6 +68,8 @@ def test_bad_readings(payload, key, raw):
     ("forecast", "8", "heavy rain", "heavy rain"),
     ("symbol", "2", 2, 2),
     ("station", "Test_Station", "Test_Station", "Test_Station"),
+    ("station", "TILSKI-15:12:24", "TILSKI", "TILSKI"),
+    ("station", "My-Station-15:12:24", "My-Station", "My-Station"),
     ("date", "09/11/2026", "09/11/2026", "09/11/2026"),
     ("apparent_temp", "10.123", 10.123, 10.123),
 ])
@@ -106,6 +113,42 @@ def test_unknown_forecast_and_fractional_symbol(payload):
 def test_conversion_overflow_is_unavailable(payload):
     payload[4] = "1.7e308"
     assert parse_condition(payload, "temp", False) is None
+
+
+@pytest.mark.parametrize("date,expected", [
+    ("9/11/2026", datetime(2026, 11, 9, 14, 12, 24, tzinfo=timezone.utc)),
+    ("9/7/2026", datetime(2026, 7, 9, 13, 12, 24, tzinfo=timezone.utc)),
+])
+def test_last_updated_uses_feed_date_and_local_timezone(
+    payload, date, expected,
+):
+    payload[32] = "My-Station-15:12:24"
+    payload[74] = date
+    assert parse_condition(
+        payload, "last_updated",
+        station_timezone=ZoneInfo("Europe/Oslo")) == expected
+
+
+@pytest.mark.parametrize("station,date", [
+    ("TILSKI", "9/11/2026"),
+    ("TILSKI-25:12:24", "9/11/2026"),
+    ("TILSKI-15:12:24", "31/2/2026"),
+    ("TILSKI-15:12:24", "---"),
+    ("---", "9/11/2026"),
+])
+def test_invalid_last_updated(payload, station, date):
+    payload[32], payload[74] = station, date
+    assert parse_condition(payload, "last_updated") is None
+    assert "last_updated" not in detect_conditions(payload)
+
+
+def test_last_updated_midnight_and_missing_date(payload):
+    payload[32] = "TILSKI-00:00:00"
+    payload[74] = "1/1/2026"
+    assert parse_condition(
+        payload, "last_updated", station_timezone=ZoneInfo("Europe/Oslo")
+    ) == datetime(2025, 12, 31, 23, tzinfo=timezone.utc)
+    assert parse_condition(payload[:40], "last_updated") is None
 
 
 def test_url_identity():

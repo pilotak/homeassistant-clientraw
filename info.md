@@ -42,8 +42,9 @@ Existing Clientraw sensor YAML is automatically imported once, preserving its se
   - **humidity_min**: Min relative humidity (%)
   - **cloud_height**: Cloud Height (m or ft)
   - **forecast**: string based output ie.: night showers
-  - **station**: station name with time added
+  - **station**: station name without the trailing update time
   - **date**: current date
+  - **last_updated**: date and station-field time combined into a timestamp using Home Assistant's configured timezone; unavailable if either is missing or invalid
   - **wind_chill**: Wind Chill (°C or °F)
   - **wind_chill_max**: Today MAX Wind Chill (°C or °F)
   - **wind_chill_min**: Today MIN Wind Chill (°C or °F)
@@ -52,5 +53,7 @@ Existing Clientraw sensor YAML is automatically imported once, preserving its se
   - **apparent_temp**: Apparent temperature (°C or °F)
   - **apparent_temp_min**: Min apparent temperature (°C or °F)
   - **apparent_temp_max**: Max apparent temperature (°C or °F)
+
+Existing entries can enable **Last updated (last_updated)** in **Configure > Monitored conditions**. Date remains available for compatibility. Station now shows just the name, e.g. `TILSKI` instead of `TILSKI-15:12:24`.
 
 For installation instructions and symbol codes, see the [README](README.md).
