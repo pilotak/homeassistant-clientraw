@@ -1,0 +1,491 @@
+Description of the clientraw.txt file 
+example:
+          
+12345 18.0 18.0 239 13.2 98 1018.6 0.0 156.9 835.2 0.000 0.000 16.6 41 17.8 2 0.0 0 0 0.0 -100.0 255.0 -100.0 16.6 -100.0 -100.0 -100 -100 -100 00 15 58 West_Coast_Road-0:15:58_AM 0 0 24 9 100 100 100 100 100 100 100 13.2 15.9 13.2 13.1 1 Night_time/Dry/A_few_clouds_ -0.3 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 28.7 12.9 407.2 24/9/2014 16.0 15.7 13.2 13.1 0.0 18 17 19 21 24 19 24 20 22 18 13.2 13.2 13.2 13.2 13.2 13.2 13.2 13.2 13.2 13.2 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 13.2 13.1 13.2 25.3 0 --- --- 250 0 0 -100.0 -100.0 0 0 0 0 0 0.0 16.7 16.6 7.9 1018.7 1018.5 34 11:40PM 12:05_AM  4.0E+0252  7.9E-0067 12.9 12.7 18 2014 -9.4 -1 0 -1 285 247 274 246 250 253 240 246 253 239 15.0 255.0 20.1 13.0 -37.11667 -174.58333 0.0 98 98 0.0 12:02_AM 197.6 0.0 106.5 0.0 0.0 0.0 4.4 12:13_AM 12:02_AM !!C10.37R!! 
+          
+0         12345    ID code
+1         6.1      Average windspeed (kts) (rolling average of last 60 readings (updated every second), unless station provides average 
+2         8.5      Current windspeed (kts)
+3         235      Wind direction
+4         16.3     Temperature (oC)
+5         79       Outdoor humidity (%)
+6         1010.0   Barometer (hpa)
+7         0.0      Daily rainfall (mm)
+8         17.6     Monthly  "       "
+9         376.8    Yearly   "       "
+10        0.0      Rain rate (mm/min)
+11        0.0      Max rain rate (mm/min) for the day
+12        20.8     Indoor temperature (oC)
+13        0        Indoor humidity (%)
+14        15.9     Soil temperature (oC)
+15        0        Forecast icon
+16        0.0      WMR968 extra temperature (oC)
+17        0        WMR968 extra humidity (%)
+18        0        WMR968 extra sensor number
+19        6.6      Yesterday rainfall (mm)
+20        20.8     Extra temperature sensor #1 (oC)
+21        22.6     Extra temperature sensor #2   
+22        -20.0    Extra temperature sensor #3    
+23        -20.0    Extra temperature sensor #4   
+24        -20.0    Extra temperature sensor #5     
+25        -20.0    Extra temperature sensor #6     
+26        0.0      Extra humidity sensor #1   (%)
+27        0.0      Extra humidity sensor #2   
+28        0.0      Extra humidity sensor #3    
+29        21        Hour
+30        29        Minute
+31        42        Seconds
+32        Awhitu    Stationname and time added
+33        0         Lightning counts since noon. If using nextstorm, then its the total counts supplied by nexstorm
+34        0         Actual solar reading
+35        7         Day
+36        4         Month
+37        0         WMR968 battery level 1, but will be battery volts 1 if not WMR968 station
+38        0         WMR968 battery level 2 , but will be battery volts 2 if not WMR968 station
+39        7         WMR968 battery level 3
+40        4         WMR968 battery level 4
+41        100       WMR968 battery level 5
+42        100       WMR968 battery level 6
+43        100       WMR968 battery level 7
+44        19.5      Current windchill reading  (oC)
+45        18.5      Current humidex value (oC)
+46        15.5      Maximum daily temperature (oC)
+47        12.5      Minimum daily temperature (oC)
+48        0         Current Condition Icon # - see list:
+                   0= imagesunny
+                   1= imageclearnight
+                   2= imagecloudy
+                   3= mainly fine (only a few clouds)
+                   4= imagecloudynight
+                   5= imagedry (cloudy periods)
+                   6= imagefog
+                   7= imagehaze
+                   8= imageheavyrain (heavy rain)
+                   9= imagemainlyfine
+                   10=imagemist
+                   11=imagenightfog
+                   12=imagenightheavyrain
+                   13=imagenightovercast
+                   14=imagenightrain
+                   15=imagenightshowers
+                   16=imagenightsnow
+                   17=imagenightthunder
+                   18=imageovercast
+                   19=imagemainlycloudy
+                   20=imagerain (normal rain)
+                   21=light rain
+                   22=imageshowers2  (light rain/drizzle)
+                   23=imagesleet
+                   24=imagesleetshowers
+                   25=imagesnow
+                   26=imagesnowmelt
+                   27=imagesnowshowers2 (light snow/snow showers)
+                   28=imagesunny
+                   29=imagethundershowers
+                   30=imagethundershowers2
+                   31=imagethunderstorms
+                   32=imagetornado
+                   33=imagewindy
+                   34=stopped rainning
+                   35=windy rain
+                   36=sunrise
+                   37=sunset
+49        Current weather description
+50        Baro trend last hour (hPa):for the local file clientraw.txt
+51-70     the next 20  positions = the windspeed array for the wind speed graph
+71        maximum gust for the day (kts)
+72        dew pointer temperature (oC)
+73        cloud height in feet
+74        current date  (either as day/mth/year or mth/day/year, depending on your date format setting in WD)
+75        maximum humidex
+76        minumim humidex
+77        maximum windchill
+78        minimum windchill
+79        Davis VP UV
+80-89     array of last hour windspeed (10 positions)
+90-99     array of last hour temperature (10 positions)
+100-109   array of last rain last hour (10 positions) (daily rain total)
+110       max heat index
+111       min heat index
+112       heat index value (oC)
+113       Maximum average speed for the day (kts)
+114       Lightning count last minute
+115       Time of last lightning count 
+116       date of last lightning count 
+117       Average wind direction (degrees)
+118       Nexstorm distance of last strike
+119       Nexstorm bearing of last strike
+120       Extra temperature sensor #7
+121       Extra temperature sensor #8
+122       Extra humidity sensor #4
+123       Extra humidity sensor #5
+124       Extra humidity sensor #6
+125       Extra humidity sensor #7
+126       Extra humidity sensor #8
+127       VP solar wm/2 reading
+128       Max indoor temperature
+129       Min indoor temperature
+130       Apparent temperature
+131       Max barometer
+132       Min barometer
+133       Max gust last hour
+134       Max gust last hour time
+135       Max gust today time
+136       Max Apparent temperature
+137       Min apparent temperature
+138       max dew point
+139       min dew point
+140       max gust in the last minute
+141       Year
+142       THSWI index (needs to be enabled in WD)
+143       Temp Trend (-1/0/1)
+144       Humidity Trend (-1/0/1)
+145       Humidex Trend (-1/0/1)
+146-155   next 10 data positions = wind direction last hour
+156       VP leaf wetness
+157       VP soil moisture
+158       10 minute average windspeed (kts)
+159       wetbulb
+160       latitude
+161       longitude
+162       9am reset rain total (mm)
+163       daily high humidity
+164       daily low humidity
+165       midnight reset rain total (mm)
+166       time of daily low windchill  //position 166
+167       current cost channel 1 (watts)
+168       current cost channel 2
+169       current cost channel 3
+170       current cost channel 4
+171       current cost channel 5
+172       current cost channel 6
+173       daily wind run (km) (9am or midnight reset)
+174       Time of daily max temp
+175       Time of daily min temp
+176       10 minute average wind direction
+177       Version of WD
+          
+Description of the clientrawextra.txt
+-------------------------------------
+starts with 12345
+array of last 24 hour windspeed (20 positions)
+array of last 24 hour temperature (20 positions)
+array of last 24 rain last hour (20 positions)
+****Record month high temperature
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record month low temperature
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record month high gust
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month rain rate
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month low baro
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record high baro
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month daily rain
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month rain in 1 hour
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month average speed
+hour of that record
+minute of that record
+day of that record
+month of that record
+****not used at the moment
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month high soil
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month low soil
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month low chill
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month high gust direction
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month average speed direction
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month warmest day on record
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month coldest night on record
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month coldest day on record
+hour of that record
+minute of that record
+day of that record
+month of that record
+****Record month warmest night on record
+hour of that record
+minute of that record
+day of that record
+month of that record
+**** from here its repeated in the same sequence for all time records for the year to date, then all time records to date (21 data records in each seqeunce)
+
+array of barometer last 24 hour (20 positions)
+array of time stamp last 24 hour2 (20 positions)
+
+Snow for the day
+Snow for the month
+Snow for the season
+Days since last rain
+Days of rain this month
+The next 7 are rain for each day of the week (starts monday, ends sunday). Divide by 10
+array of last 24 hour solar reading (20 positions)
+array of last 24 hour UV reading (20 positions)
+Davis VP forecast text
+Evapotranspiration rate (mm)
+Yesterdayrain (mm)
+Version of weather display
+last 24 hours wind direction (20 data points)
+Max extra temperature 1
+Min extra temperature 1
+Max extra temp2
+Min extra temp2
+etc, up to extra temp 8
+Day/night flag (i.e D or M )
+array of last 24 humidity last hour (20 positions)
+FWI value
+array of last 24 indoor temperature last hour (20 positions)
+
+****Record high solar month
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record high UV month
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+
+****Record high solar year
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record high UV year
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+
+****Record high solar all time
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record high UV all time
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+
+daily sunshine hours
+current snow depth
+hour
+minute
+day
+Flag for if solar data (i.e station has solar or UV) or not (s1 = yes s0 = no )
+Flag for if UV data (i.e station has solar or UV) or not (u1 = yes u0 = no )
+Flag for if soil temperature data (i.e station has solar or UV) or not (o1 = yes o0 = no )
+Nexstorm lightning count totals for each hour (23 values)
+****Record high dew month
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record low dew month
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record high dew year
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record low dew year
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record high dew all time
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+****Record low dew all time
+hour of that record
+minute of that record
+day of that record
+month of that record
+year of that record
+chandler burning index
+visibility
+yesterday max temp 
+yesterday min temp
+yesterday max temp time
+yesterday min temp time
+yesterday max baro
+yesterday min baro
+yesterday max baro time
+yesterday min baro time
+yesterday max hum
+yesterday min hum
+yesterday max hum time
+yesterday min hum time
+yesterday max gust
+yesterday max gust time
+yesterday max average
+yesterday max average time
+yesterday min chill
+yesterday min chill time
+yesterday max heat
+yesterday max heat time
+yesterday max dew
+yesterday min dew
+yesterday max dew time
+yesterday min dew time
+yesterday max solar
+yesterday max solar time
+today max temp 
+today min temp
+today max temp time
+today min temp time
+today max baro
+today min baro
+today max baro time
+today min baro time
+today max hum
+today min hum
+today max hum time
+today min hum time
+today max gust
+today max gust time
+today max average
+today max average time
+today min chill
+today min chill time
+today max heat
+today max heat time
+today max dew
+today min dew
+today max dew time
+today min dew time
+today max solar
+today max solar time
+
+clientrawdaily.txt:
+-------------------
+
+Array of month to date daily hi temperatures (31 positions)
+Array of month to date daily lo temperatures (31 positions)
+Array of month to date rain total for month (31 positions)
+Array of month to date barometer reading at daily reset time (31 positions)
+Array of month to date average daily windspeed (31 positions)
+Array of month to date average daily direction (31 positions)
+Array of last 12 months rain totals (12 positions)
+Array of month to date humdity readings (31 positions)
+hour
+minute
+day
+Temp last 7 days             (28 data points (4 per day)
+Barometer last 7 days              "
+Humidity last 7 days               "
+Wind direction last 7 days          "
+Wind speed last 7 days             "
+Solar last 7 days                    "
+UV last 7 days    
+Last years Rain total to Dec (from rain season start)
+Average rain for Jan, and then for the other months (mm):
+Feb
+Mar
+Apr
+May
+Jun
+Jul
+Aug
+Sep
+Oct
+Nov
+Dec
+Indoor temperature last 7 days (28 data points (4 per day)) -> optional
+
+Clientrawhour.txt: (updted at 59 minutes every hour)
+------------------
+last 60 minutes windspeed (kts), 1 minute resolution (i.e 60 numbers)
+last 60 minutes gustspeed (kts)
+last 60 minutes direction
+last 60 minutes temperature (oC)
+last 60 minutes humidity
+last 60 minutes barometer (hpa)
+last 60 minutes daily rain total (mm)
+last 60 minutes of solar data (wm/2) 
+last 24 hours of solar data (wm/2), every 15 minutes (95 data points)
+last 24 hours of UV data , every 15 minutes (95 data points)
+         
+         
+         
+         
+         
+         

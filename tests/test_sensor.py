@@ -1,6 +1,6 @@
 """Registry migration, polling, error recovery, and lifecycle coverage."""
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 import aiohttp
 import pytest
 
@@ -10,13 +10,14 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er, issue_registry as ir
 from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util, slugify
-from homeassistant.util.unit_system import US_CUSTOMARY_SYSTEM
+from homeassistant.util.unit_system import METRIC_SYSTEM, US_CUSTOMARY_SYSTEM
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry, async_fire_time_changed,
 )
 
 from custom_components.clientraw.client import endpoint_id, import_id
 from custom_components.clientraw.const import CONDITIONS, DOMAIN
+from custom_components.clientraw.sensor import ClientrawSensor
 
 DEVICE_CLASSES = {
     "temp": "temperature", "temp_indoor": "temperature",
@@ -68,7 +69,8 @@ async def test_every_sensor_and_unit_system(hass, entry, fetch, imperial):
     assert temperature.attributes["unit_of_measurement"] == (
         "°F" if imperial else "°C")
     pressure = hass.states.get("sensor.clientraw_pressure")
-    assert float(pressure.state) == (29.92 if imperial else 1013.25)
+    assert float(pressure.state) == pytest.approx(
+        29.92 if imperial else 1013.25, abs=0.01)
     assert pressure.attributes["unit_of_measurement"] == (
         "inHg" if imperial else "hPa")
     assert await hass.config_entries.async_unload(entry.entry_id)
@@ -82,7 +84,7 @@ async def test_corrected_apparent_temperature_and_rain_rate(
         hass.config.units = US_CUSTOMARY_SYSTEM
     for key in ("apparent_temp", "apparent_temp_min", "apparent_temp_max"):
         payload[CONDITIONS[key].index] = "-5"
-    payload[10] = "25.4"
+    payload[10] = str(25.4 / 60)
     selected = ["apparent_temp", "apparent_temp_min", "apparent_temp_max",
                 "rain_rate"]
     hass.config_entries.async_update_entry(
@@ -117,8 +119,10 @@ async def test_corrected_apparent_temperature_and_rain_rate(
     ("apparent_temp", "-5", "°F", 23),
     ("pressure", "1013.25", "inHg", 29.92),
     ("daily_rain", "25.4", "in", 1),
-    ("rain_rate", "25.4", "in/h", 1),
-    ("cloud_height", "100", "ft", 328.08),
+    ("rain_rate", str(25.4 / 60), "in/h", 1),
+    ("rain_rate", "0.1", "mm/h", 6),
+    ("cloud_height", "1000", "m", 304.8),
+    ("cloud_height", "1000", "ft", 1000),
 ])
 async def test_sensor_unit_override(
     hass, entry, fetch, payload, key, raw, unit, expected,
@@ -189,7 +193,8 @@ async def test_wind_sensor_units_are_configurable(
         assert state.attributes["unit_of_measurement"] == (
             UnitOfSpeed.MILES_PER_HOUR if imperial
             else UnitOfSpeed.KILOMETERS_PER_HOUR)
-        assert float(state.state) == (11.51 if imperial else 18.52)
+        assert float(state.state) == pytest.approx(
+            11.51 if imperial else 18.52, abs=0.01)
         registry.async_update_entity_options(
             entity_id, "sensor", {"unit_of_measurement": "m/s"})
     await hass.async_block_till_done()
@@ -198,7 +203,7 @@ async def test_wind_sensor_units_are_configurable(
             "sensor", DOMAIN, f"{entry.entry_id}_{key}")
         state = hass.states.get(entity_id)
         assert state.attributes["unit_of_measurement"] == "m/s"
-        assert float(state.state) == (5.15 if imperial else 5.14)
+        assert float(state.state) == pytest.approx(5.144444, abs=0.000001)
     assert await hass.config_entries.async_reload(entry.entry_id)
     await hass.async_block_till_done()
     for key in wind_keys:
@@ -227,6 +232,8 @@ async def test_existing_wind_sensor_preserves_id_and_unit(hass, entry, fetch):
     existing = registry.async_get_or_create(
         "sensor", DOMAIN, f"{entry.entry_id}_wind_speed", config_entry=entry,
         suggested_object_id="garden_wind")
+    registry.async_update_entity(
+        existing.entity_id, unit_of_measurement="km/h")
     hass.config_entries.async_update_entry(
         entry, options={"monitored_conditions": ["wind_speed"]})
     assert await hass.config_entries.async_setup(entry.entry_id)
@@ -429,4 +436,264 @@ async def test_empty_selection_creates_no_entities(hass, entry, fetch):
     await hass.async_block_till_done()
     registry = er.async_get(hass)
     assert not er.async_entries_for_config_entry(registry, entry.entry_id)
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+MEASUREMENTS = {
+    "dewpoint", "heat_index", "temp", "temp_indoor", "humidex",
+    "wind_speed", "wind_speed_average", "wind_speed_avg_10min", "rain_rate",
+    "pressure", "humidity", "humidity_indoor", "cloud_height", "wind_chill",
+    "vp_solar", "uv_index", "apparent_temp",
+}
+TOTALS = {"daily_rain", "monthly_rain", "yearly_rain"}
+
+
+async def test_native_units_and_statistics_are_fixed(hass, entry, fetch):
+    hass.config_entries.async_update_entry(
+        entry, options={"monitored_conditions": list(CONDITIONS)})
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    for system in (METRIC_SYSTEM, US_CUSTOMARY_SYSTEM, METRIC_SYSTEM):
+        hass.config.units = system
+        assert await hass.config_entries.async_reload(entry.entry_id)
+        registry = er.async_get(hass)
+        for key, condition in CONDITIONS.items():
+            sensor = ClientrawSensor(entry.runtime_data, entry, key)
+            assert sensor.native_unit_of_measurement == condition.native_unit
+            if condition.native_unit is not None:
+                assert sensor.native_value == (
+                    float(entry.runtime_data.data[condition.index])
+                    * (60 if key == "rain_rate" else 1))
+            entity_id = registry.async_get_entity_id(
+                "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+            expected_class = (
+                "measurement" if key in MEASUREMENTS else
+                "total_increasing" if key in TOTALS else None)
+            assert hass.states.get(entity_id).attributes.get(
+                "state_class") == expected_class
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_unit_system_switch_preserves_override(hass, entry, fetch):
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    registry = er.async_get(hass)
+    entity_id = registry.async_get_entity_id(
+        "sensor", DOMAIN, f"{entry.entry_id}_temp")
+    registry.async_update_entity_options(
+        entity_id, "sensor", {"unit_of_measurement": "°C"})
+    await hass.async_block_till_done()
+    await hass.config.async_update(unit_system="us_customary")
+    await hass.async_block_till_done()
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    sensor = ClientrawSensor(entry.runtime_data, entry, "temp")
+    assert sensor.native_value == 10
+    assert sensor.native_unit_of_measurement == "°C"
+    assert hass.states.get(entity_id).attributes["unit_of_measurement"] == "°C"
+    assert float(hass.states.get(entity_id).state) == 10
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+@pytest.mark.parametrize("source", [
+    "options", "options_redetect", "reconfigure",
+])
+@pytest.mark.parametrize("selected", [[], ["temp"]])
+async def test_deselection_removes_registry_and_states(
+    hass, entry, fetch, source, selected,
+):
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    registry = er.async_get(hass)
+    humidity_id = registry.async_get_entity_id(
+        "sensor", DOMAIN, f"{entry.entry_id}_humidity")
+    temperature_id = registry.async_get_entity_id(
+        "sensor", DOMAIN, f"{entry.entry_id}_temp")
+    registry.async_update_entity(
+        temperature_id, name="Custom temperature", icon="mdi:star")
+    if source.startswith("options"):
+        flow = await hass.config_entries.options.async_init(entry.entry_id)
+        flow = await hass.config_entries.options.async_configure(
+            flow["flow_id"], {
+                "interval": 3, "monitored_conditions": selected,
+                "redetect": source == "options_redetect",
+            })
+        if source == "options_redetect":
+            assert registry.async_get(humidity_id) is not None
+            await hass.config_entries.options.async_configure(
+                flow["flow_id"], {"monitored_conditions": selected})
+    else:
+        flow = await hass.config_entries.flow.async_init(
+            DOMAIN, context={
+                "source": "reconfigure", "entry_id": entry.entry_id})
+        flow = await hass.config_entries.flow.async_configure(
+            flow["flow_id"], {
+                "url": entry.data["url"], "name": entry.data["name"],
+                "redetect": True,
+            })
+        assert registry.async_get(humidity_id) is not None
+        await hass.config_entries.flow.async_configure(
+            flow["flow_id"], {"monitored_conditions": selected})
+    await hass.async_block_till_done()
+    assert registry.async_get(humidity_id) is None
+    assert hass.states.get(humidity_id) is None
+    if selected:
+        assert registry.async_get(temperature_id).name == "Custom temperature"
+        assert registry.async_get(temperature_id).icon == "mdi:star"
+    else:
+        assert registry.async_get(temperature_id) is None
+        assert hass.states.get(temperature_id) is None
+    hass.config_entries.async_update_entry(
+        entry, options={"monitored_conditions": ["temp", "humidity"]})
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    recreated = registry.async_get_entity_id(
+        "sensor", DOMAIN, f"{entry.entry_id}_humidity")
+    assert hass.states.get(recreated) is not None
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_cleanup_is_scoped_and_preserves_selected_disabled(
+    hass, entry, fetch, payload,
+):
+    registry = er.async_get(hass)
+    disabled = registry.async_get_or_create(
+        "sensor", DOMAIN, f"{entry.entry_id}_temp", config_entry=entry,
+        disabled_by=er.RegistryEntryDisabler.USER)
+    stale = registry.async_get_or_create(
+        "sensor", DOMAIN, f"{entry.entry_id}_pressure", config_entry=entry)
+    unknown = registry.async_get_or_create(
+        "sensor", DOMAIN, f"{entry.entry_id}_unknown", config_entry=entry)
+    other = MockConfigEntry(domain=DOMAIN, data={})
+    other.add_to_hass(hass)
+    foreign = registry.async_get_or_create(
+        "sensor", DOMAIN, f"{other.entry_id}_pressure", config_entry=other)
+    payload[5] = "---"
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    assert registry.async_get(stale.entity_id) is None
+    assert registry.async_get(disabled.entity_id).disabled_by == (
+        er.RegistryEntryDisabler.USER)
+    assert registry.async_get(unknown.entity_id) is not None
+    assert registry.async_get(foreign.entity_id) is not None
+    assert hass.states.get("sensor.clientraw_humidity").state == "unavailable"
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_migrated_deselected_entity_is_removed(hass, entry, fetch):
+    registry = er.async_get(hass)
+    legacy = registry.async_get_or_create(
+        "sensor", DOMAIN, slugify("sensor.clientraw_pressure"))
+    hass.config_entries.async_update_entry(
+        entry, data={**entry.data, "legacy_name": "clientraw"})
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    assert registry.async_get(legacy.entity_id) is None
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_timestamp_diagnostic_recovers_and_clears(
+    hass, entry, fetch, payload,
+):
+    hass.config_entries.async_update_entry(
+        entry, options={"monitored_conditions": ["temp", "last_updated"]})
+    payload[30] = "60"
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    issues = ir.async_get(hass)
+    issue_id = f"invalid_timestamp_{entry.entry_id}"
+    issue = issues.async_get_issue(DOMAIN, issue_id)
+    assert issue is not None
+    assert hass.states.get("sensor.clientraw_temperature").state == "10.0"
+    assert hass.states.get("sensor.clientraw_last_updated").state == (
+        "unavailable")
+    await entry.runtime_data.async_refresh()
+    assert issues.async_get_issue(DOMAIN, issue_id) == issue
+    payload[30] = "12"
+    await entry.runtime_data.async_refresh()
+    assert issues.async_get_issue(DOMAIN, issue_id) is None
+    payload[30] = "-"
+    await entry.runtime_data.async_refresh()
+    assert issues.async_get_issue(DOMAIN, issue_id) is not None
+    hass.config_entries.async_update_entry(
+        entry, options={"monitored_conditions": ["temp"]})
+    fetch[0].side_effect = aiohttp.ClientConnectionError
+    assert not await hass.config_entries.async_reload(entry.entry_id)
+    assert issues.async_get_issue(DOMAIN, issue_id) is None
+
+
+async def test_timestamp_defaults_are_persisted(hass, entry, fetch):
+    await hass.config.async_set_time_zone("Europe/Oslo")
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    assert entry.minor_version == 2
+    assert entry.data["date_format"] == "dmy"
+    assert entry.data["station_timezone"] == "Europe/Oslo"
+    await hass.config.async_set_time_zone("America/New_York")
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    assert entry.data["station_timezone"] == "Europe/Oslo"
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_recorder_statistics_and_rain_reset(
+    recorder_mock, hass, entry, fetch, payload, freezer,
+):
+    from homeassistant.components.recorder.statistics import (
+        get_metadata, statistics_during_period,
+    )
+    from homeassistant.components.recorder.tasks import StatisticsTask
+    from pytest_homeassistant_custom_component.components.recorder.common \
+        import (
+            async_recorder_block_till_done,
+        )
+
+    start = datetime(2026, 11, 9, 12, tzinfo=timezone.utc)
+    freezer.move_to(start + timedelta(seconds=1))
+    payload[7] = "10"
+    hass.config_entries.async_update_entry(entry, options={
+        "monitored_conditions": ["temp", "daily_rain", "yesterday_rain",
+                                 "temp_day_max", "wind_degrees"],
+    })
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_start()
+    await hass.async_block_till_done()
+    await async_recorder_block_till_done(hass)
+    for period, rain in enumerate(("10", "12", *("1",) * 10)):
+        freezer.move_to(start + timedelta(minutes=period * 5, seconds=1))
+        payload[7] = rain
+        payload[4] = str(10 + min(period, 2))
+        if period == 3:
+            await hass.config.async_update(unit_system="us_customary")
+            registry = er.async_get(hass)
+            for key, unit in (("temp", "°F"), ("daily_rain", "in")):
+                entity_id = registry.async_get_entity_id(
+                    "sensor", DOMAIN, f"{entry.entry_id}_{key}")
+                registry.async_update_entity_options(
+                    entity_id, "sensor", {"unit_of_measurement": unit})
+            assert await hass.config_entries.async_reload(entry.entry_id)
+        await entry.runtime_data.async_refresh()
+        await hass.async_block_till_done()
+        await async_recorder_block_till_done(hass)
+        recorder_mock.queue_task(StatisticsTask(
+            start + timedelta(minutes=period * 5), False))
+        await async_recorder_block_till_done(hass)
+    metadata = await recorder_mock.async_add_executor_job(get_metadata, hass)
+    assert "sensor.clientraw_temperature" in metadata
+    assert "sensor.clientraw_daily_rain" in metadata
+    for excluded in (
+        "yesterday_rain", "today_max_temperature", "wind_degrees",
+    ):
+        assert f"sensor.clientraw_{excluded}" not in metadata
+    statistics = await recorder_mock.async_add_executor_job(
+        statistics_during_period, hass, start, None, {
+            "sensor.clientraw_temperature", "sensor.clientraw_daily_rain"},
+        "5minute", {"temperature": "°C", "distance": "mm"},
+        {"mean", "sum", "state"})
+    assert statistics["sensor.clientraw_temperature"][-1]["mean"] == (
+        pytest.approx(12))
+    assert [point["sum"] for point in statistics[
+        "sensor.clientraw_daily_rain"]] == pytest.approx(
+            [0, 2, *([3] * 10)])
+    hourly = await recorder_mock.async_add_executor_job(
+        statistics_during_period, hass, start, None, {
+            "sensor.clientraw_temperature", "sensor.clientraw_daily_rain"},
+        "hour", {"temperature": "°C", "distance": "mm"}, {"mean", "sum"})
+    assert hourly["sensor.clientraw_daily_rain"][0]["sum"] == (
+        pytest.approx(3))
+    assert 10 < hourly["sensor.clientraw_temperature"][0]["mean"] < 12
+    assert metadata["sensor.clientraw_temperature"][1][
+        "unit_of_measurement"] == "°C"
+    assert metadata["sensor.clientraw_daily_rain"][1][
+        "unit_of_measurement"] == "mm"
     assert await hass.config_entries.async_unload(entry.entry_id)

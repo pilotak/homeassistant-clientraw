@@ -7,7 +7,7 @@ import pytest
 
 from homeassistant.config_entries import SOURCE_IMPORT, SOURCE_RECONFIGURE
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
-from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers import entity_registry as er, issue_registry as ir
 from homeassistant.helpers import device_registry as dr
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -18,6 +18,59 @@ from custom_components.clientraw.const import CONDITIONS, DOMAIN
 
 URL = "https://example.com/clientraw.txt"
 SETTINGS = {"url": URL, "name": "clientraw", "interval": 15}
+
+
+@pytest.mark.parametrize("source", ["user", SOURCE_RECONFIGURE])
+async def test_timestamp_settings_and_detection(
+    hass, entry, fetch, payload, source,
+):
+    payload[74] = "2026-11-09"
+    timestamp = {"date_format": "iso", "station_timezone": "Europe/Oslo"}
+    if source == "user":
+        settings = {**SETTINGS, "url": URL + "?new", **timestamp}
+        context = {"source": source}
+    else:
+        settings = {
+            "url": URL, "name": "clientraw", "redetect": True, **timestamp}
+        context = {"source": source, "entry_id": entry.entry_id}
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context=context, data=settings)
+    assert result["step_id"] == "conditions"
+    assert "last_updated" in defaults(result)["monitored_conditions"]
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"monitored_conditions": ["last_updated"]})
+    await hass.async_block_till_done()
+    configured = result["result"] if source == "user" else entry
+    assert configured.data["date_format"] == "iso"
+    assert configured.data["station_timezone"] == "Europe/Oslo"
+    entity_id = er.async_get(hass).async_get_entity_id(
+        "sensor", DOMAIN, f"{configured.entry_id}_last_updated")
+    assert hass.states.get(entity_id).state == "2026-11-09T14:12:24+00:00"
+    flow = await hass.config_entries.options.async_init(configured.entry_id)
+    flow = await hass.config_entries.options.async_configure(flow["flow_id"], {
+        "interval": 15, "monitored_conditions": ["last_updated"],
+        "redetect": True,
+    })
+    assert "last_updated" in defaults(flow)["monitored_conditions"]
+    assert await hass.config_entries.async_unload(configured.entry_id)
+
+
+@pytest.mark.parametrize("source", ["user", SOURCE_RECONFIGURE])
+async def test_invalid_timezone_preserves_settings(hass, entry, fetch, source):
+    context = {"source": source}
+    if source == SOURCE_RECONFIGURE:
+        context["entry_id"] = entry.entry_id
+    before = dict(entry.data)
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context=context, data={
+            **SETTINGS, "station_timezone": "Invalid/Timezone",
+            "date_format": "mdy",
+        })
+    assert result["errors"] == {"base": "invalid_settings"}
+    assert defaults(result)["station_timezone"] == "Invalid/Timezone"
+    assert defaults(result)["date_format"] == "mdy"
+    assert entry.data == before
+    fetch[1].assert_not_awaited()
 
 
 def defaults(result):
@@ -49,7 +102,10 @@ async def test_user_flow(hass, fetch, payload, selected):
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"], {"monitored_conditions": selected})
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["data"] == {**SETTINGS, "monitored_conditions": selected}
+    assert result["data"] == {
+        **SETTINGS, "monitored_conditions": selected,
+        "date_format": "dmy", "station_timezone": hass.config.time_zone,
+    }
     await hass.async_block_till_done()
     fetch[1].assert_awaited_once()
     assert await hass.config_entries.async_unload(result["result"].entry_id)

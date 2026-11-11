@@ -1,5 +1,7 @@
 """Clientraw weather station config entries."""
 
+import logging
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -7,11 +9,35 @@ from homeassistant.exceptions import ConfigEntryError
 from homeassistant.helpers import entity_registry as er, issue_registry as ir
 from homeassistant.util import slugify
 
-from .const import CONDITIONS, CONF_LEGACY_NAME, DOMAIN
+from .const import (
+    CONDITIONS, CONF_DATE_FORMAT, CONF_LEGACY_NAME, CONF_MONITORED_CONDITIONS,
+    CONF_STATION_TIMEZONE, DEFAULT_DATE_FORMAT, DOMAIN,
+)
 from .coordinator import ClientrawCoordinator
 
 PLATFORMS = [Platform.SENSOR]
+_LOGGER = logging.getLogger(__name__)
 type ClientrawConfigEntry = ConfigEntry[ClientrawCoordinator]
+
+
+async def async_migrate_entry(
+    hass: HomeAssistant, entry: ConfigEntry,
+) -> bool:
+    """Persist station timestamp defaults independently of HA settings."""
+    if entry.version != 1:
+        _LOGGER.error(
+            "Cannot migrate unsupported Clientraw entry version %s",
+            entry.version)
+        return False
+    if entry.minor_version < 2:
+        hass.config_entries.async_update_entry(
+            entry, data={
+                CONF_DATE_FORMAT: DEFAULT_DATE_FORMAT,
+                CONF_STATION_TIMEZONE: hass.config.time_zone,
+                **entry.data,
+            }, minor_version=2,
+        )
+    return True
 
 
 def migrate_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -54,6 +80,11 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ClientrawConfigEntry,
 ) -> bool:
     """Set up a station, retrying automatically if the endpoint is offline."""
+    selected = entry.options.get(
+        CONF_MONITORED_CONDITIONS, entry.data[CONF_MONITORED_CONDITIONS])
+    if "last_updated" not in selected:
+        ir.async_delete_issue(
+            hass, DOMAIN, f"invalid_timestamp_{entry.entry_id}")
     coordinator = ClientrawCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
     migrate_entities(hass, entry)
@@ -67,3 +98,8 @@ async def async_unload_entry(
 ) -> bool:
     """Unload entities and their coordinator subscriptions."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Remove this station's timestamp diagnostic when its entry is deleted."""
+    ir.async_delete_issue(hass, DOMAIN, f"invalid_timestamp_{entry.entry_id}")

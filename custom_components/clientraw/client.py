@@ -10,16 +10,13 @@ from urllib.parse import urlsplit, urlunsplit
 
 import aiohttp
 
-from homeassistant.const import (
-    STATE_UNKNOWN, UnitOfLength, UnitOfPressure, UnitOfTemperature,
-)
+from homeassistant.const import STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.util.unit_conversion import (
-    DistanceConverter, PressureConverter, TemperatureConverter,
+from .const import (
+    CONDITIONS, DATE_FORMATS, DEFAULT_DATE_FORMAT, DIRECTIONS, FORECASTS,
+    MISSING_VALUES,
 )
-
-from .const import CONDITIONS, DIRECTIONS, FORECASTS, MISSING_VALUES
 
 _LOGGER = logging.getLogger(__name__)
 STATION_TIME = re.compile(
@@ -96,8 +93,8 @@ async def async_fetch(hass: HomeAssistant, url: str) -> list[str]:
 
 
 def parse_condition(fields: list[str], key: str,
-                    metric: bool = True,
                     station_timezone: tzinfo = timezone.utc,
+                    date_format: str = DEFAULT_DATE_FORMAT,
                     ) -> str | float | int | datetime | None:
     """Return a reading, or None for a missing/invalid individual field."""
     condition = CONDITIONS[key]
@@ -111,19 +108,35 @@ def parse_condition(fields: list[str], key: str,
     if condition.kind == "station":
         return split_station(raw)[0]
     if condition.kind == "timestamp":
-        clock = split_station(raw)[1]
         date_index = CONDITIONS["date"].index
-        if clock is None or date_index >= len(fields):
+        if date_index >= len(fields):
             _LOGGER.debug("Missing date or time for Clientraw last updated")
             return None
         try:
+            clock_fields = fields[29:32]
+            if len(clock_fields) != 3 or not all(
+                    re.fullmatch(r"[0-9]{1,2}", part)
+                    for part in clock_fields):
+                raise ValueError("Invalid station clock fields")
+            hour, minute, second = map(int, clock_fields)
             updated = datetime.strptime(
-                f"{fields[date_index]} {clock}", "%d/%m/%Y %H:%M:%S")
+                fields[date_index], DATE_FORMATS[date_format]).replace(
+                    hour=hour, minute=minute, second=second)
         except ValueError:
-            _LOGGER.debug("Invalid date for Clientraw last updated")
+            _LOGGER.debug("Invalid date or clock for Clientraw last updated")
             return None
-        return updated.replace(
-            tzinfo=station_timezone).astimezone(timezone.utc)
+        candidates = {
+            aware.astimezone(timezone.utc)
+            for fold in (0, 1)
+            if (aware := updated.replace(
+                tzinfo=station_timezone, fold=fold)).astimezone(
+                    timezone.utc).astimezone(
+                        station_timezone).replace(tzinfo=None) == updated
+        }
+        if len(candidates) != 1:
+            _LOGGER.debug("Ambiguous or nonexistent Clientraw station time")
+            return None
+        return candidates.pop()
     try:
         value = float(raw)
         if not math.isfinite(value):
@@ -144,36 +157,26 @@ def parse_condition(fields: list[str], key: str,
                     else STATE_UNKNOWN)
         case "direction":
             return DIRECTIONS[int(value / 22.5 + .5) % 16]
-        case "number" | "humidity":
+        case "rain_rate":
+            value *= 60
+            if not math.isfinite(value):
+                _LOGGER.debug("Invalid normalized Clientraw rain rate")
+                return None
             return value
-        case "temperature":
-            value = value if metric else TemperatureConverter.convert(
-                value, UnitOfTemperature.CELSIUS,
-                UnitOfTemperature.FAHRENHEIT)
-        case "wind":
-            value *= 1.85166 if metric else 1.1507794
-        case "rain" | "rain_rate":
-            value = value if metric else value * 0.0393700787
-        case "pressure":
-            value = value if metric else PressureConverter.convert(
-                value, UnitOfPressure.HPA, UnitOfPressure.INHG)
-        case "height":
-            value = value if metric else DistanceConverter.convert(
-                value, UnitOfLength.METERS, UnitOfLength.FEET)
-        case "solar":
-            value = value if metric else value * 0.3169983306
+        case ("number" | "humidity" | "temperature" | "wind" | "rain"
+              | "pressure" | "height" | "solar"):
+            return value
         case _:
             raise ValueError(f"Unknown condition conversion: {condition.kind}")
-    if not math.isfinite(value):
-        _LOGGER.debug("Invalid converted reading for Clientraw %s", key)
-        return None
-    return round(value, 2)
 
 
-def detect_conditions(fields: list[str]) -> list[str]:
+def detect_conditions(fields: list[str],
+                      station_timezone: tzinfo = timezone.utc,
+                      date_format: str = DEFAULT_DATE_FORMAT) -> list[str]:
     """Suggest conditions without claiming to detect hardware capabilities."""
     return [key for key in CONDITIONS
-            if parse_condition(fields, key) not in (None, STATE_UNKNOWN)]
+            if parse_condition(fields, key, station_timezone, date_format)
+            not in (None, STATE_UNKNOWN)]
 
 
 FETCH_ERRORS = (

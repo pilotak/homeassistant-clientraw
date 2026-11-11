@@ -10,7 +10,9 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import CONF_NAME, CONF_URL
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv, issue_registry as ir
+from homeassistant.helpers import (
+    config_validation as cv, entity_registry as er, issue_registry as ir,
+)
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
@@ -19,8 +21,9 @@ from homeassistant.util.unit_system import METRIC_SYSTEM
 from . import ClientrawConfigEntry
 from .client import import_id, normalize_url, parse_condition
 from .const import (
-    CONDITIONS, CONF_IMPORT_ID, CONF_INTERVAL, CONF_MONITORED_CONDITIONS,
-    DEFAULT_INTERVAL, DEFAULT_NAME, DOMAIN,
+    CONDITIONS, CONF_DATE_FORMAT, CONF_IMPORT_ID, CONF_INTERVAL,
+    CONF_MONITORED_CONDITIONS, CONF_STATION_TIMEZONE, DEFAULT_INTERVAL,
+    DEFAULT_NAME, DOMAIN,
 )
 from .coordinator import ClientrawCoordinator
 
@@ -73,6 +76,23 @@ async def async_setup_entry(
     """Create the user's saved selection, including unavailable fields."""
     selected = entry.options.get(
         CONF_MONITORED_CONDITIONS, entry.data[CONF_MONITORED_CONDITIONS])
+    deselected_ids = {
+        f"{entry.entry_id}_{key}" for key in CONDITIONS if key not in selected}
+    registry = er.async_get(hass)
+    for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if (entity.domain == "sensor" and entity.platform == DOMAIN
+                and entity.unique_id in deselected_ids):
+            registry.async_remove(entity.entity_id)
+        elif (entity.domain == "sensor" and entity.platform == DOMAIN
+              and entity.unique_id == f"{entry.entry_id}_rain_rate"
+              and entity.unit_of_measurement in ("mm", "in")
+              and "unit_of_measurement" not in entity.options.get(
+                  "sensor", {})):
+            registry.async_update_entity_options(
+                entity.entity_id, "sensor.private", {
+                    "suggested_unit_of_measurement":
+                        f"{entity.unit_of_measurement}/h",
+                })
     async_add_entities(
         ClientrawSensor(entry.runtime_data, entry, key) for key in selected)
 
@@ -85,9 +105,9 @@ class ClientrawSensor(CoordinatorEntity[ClientrawCoordinator], SensorEntity):
         super().__init__(coordinator)
         self.key = key
         self.condition = CONDITIONS[key]
-        self._metric = coordinator.hass.config.units is METRIC_SYSTEM
         self._station_timezone = dt_util.get_time_zone(
-            coordinator.hass.config.time_zone)
+            entry.data[CONF_STATION_TIMEZONE])
+        self._date_format = entry.data[CONF_DATE_FORMAT]
         assert self._station_timezone is not None
         self._attr_name = f"{entry.data[CONF_NAME]} {self.condition.name}"
         self._attr_unique_id = f"{entry.entry_id}_{key}"
@@ -96,22 +116,26 @@ class ClientrawSensor(CoordinatorEntity[ClientrawCoordinator], SensorEntity):
             name=entry.data[CONF_NAME],
         )
         self._attr_icon = self.condition.icon
+        self._attr_state_class = self.condition.state_class
         if self.condition.kind in DEVICE_CLASSES:
             self._attr_device_class = DEVICE_CLASSES[self.condition.kind]
-        if self.condition.kind in (
-                "temperature", "wind", "pressure", "rain", "rain_rate",
-                "height"):
+        if self.condition.kind == "wind":
             self._attr_suggested_unit_of_measurement = (
-                self.condition.metric if self._metric
+                self.condition.metric
+                if coordinator.hass.config.units is METRIC_SYSTEM
                 else self.condition.imperial)
-        self._attr_native_unit_of_measurement = (
-            self.condition.metric if self._metric else self.condition.imperial)
+        elif (self.condition.kind == "rain_rate"
+              and coordinator.hass.config.units is not METRIC_SYSTEM):
+            self._attr_suggested_unit_of_measurement = self.condition.imperial
+        self._attr_native_unit_of_measurement = self.condition.native_unit
+        if self.condition.native_unit is not None:
+            self._attr_suggested_display_precision = 2
 
     @property
     def native_value(self) -> str | float | int | datetime | None:
         return parse_condition(
-            self.coordinator.data, self.key, self._metric,
-            self._station_timezone)
+            self.coordinator.data, self.key, self._station_timezone,
+            self._date_format)
 
     @property
     def available(self) -> bool:

@@ -9,15 +9,19 @@ from homeassistant.config_entries import (
 )
 from homeassistant.const import CONF_NAME, CONF_URL
 from homeassistant.core import callback
-from homeassistant.helpers import issue_registry as ir, selector
+from homeassistant.helpers import (
+    config_validation as cv, issue_registry as ir, selector,
+)
+from homeassistant.util import dt as dt_util
 
 from .client import (
     FETCH_ERRORS, InvalidClientraw, async_fetch, detect_conditions,
     endpoint_id, import_id, import_signature, normalize_url,
 )
 from .const import (
-    CONDITIONS, CONF_IMPORT_ID, CONF_IMPORT_SIGNATURE, CONF_INTERVAL,
-    CONF_LEGACY_NAME, CONF_MONITORED_CONDITIONS, DEFAULT_INTERVAL,
+    CONDITIONS, CONF_DATE_FORMAT, CONF_IMPORT_ID, CONF_IMPORT_SIGNATURE,
+    CONF_INTERVAL, CONF_LEGACY_NAME, CONF_MONITORED_CONDITIONS,
+    CONF_STATION_TIMEZONE, DATE_FORMATS, DEFAULT_DATE_FORMAT, DEFAULT_INTERVAL,
     DEFAULT_NAME, DOMAIN,
 )
 
@@ -47,10 +51,50 @@ def current_conditions(entry: ConfigEntry) -> list[str]:
         CONF_MONITORED_CONDITIONS, entry.data[CONF_MONITORED_CONDITIONS]))
 
 
+def timestamp_settings(settings: dict[str, Any],
+                       default_timezone: str) -> dict[str, str]:
+    """Validate explicit date order and station timezone."""
+    return {
+        CONF_DATE_FORMAT: vol.In(DATE_FORMATS)(
+            settings.get(CONF_DATE_FORMAT, DEFAULT_DATE_FORMAT)),
+        CONF_STATION_TIMEZONE: cv.time_zone(
+            settings.get(CONF_STATION_TIMEZONE, default_timezone)),
+    }
+
+
+def timestamp_schema(settings: dict[str, Any],
+                     default_timezone: str) -> vol.Schema:
+    """Offer unambiguous date formats and an IANA timezone."""
+    date_format = vol.Required(
+        CONF_DATE_FORMAT, default=settings.get(
+            CONF_DATE_FORMAT, DEFAULT_DATE_FORMAT))
+    return vol.Schema({
+        date_format: selector.SelectSelector(selector.SelectSelectorConfig(
+            options=[
+                selector.SelectOptionDict(value="dmy", label="DD/MM/YYYY"),
+                selector.SelectOptionDict(value="mdy", label="MM/DD/YYYY"),
+                selector.SelectOptionDict(value="iso", label="YYYY-MM-DD"),
+            ],
+            mode=selector.SelectSelectorMode.DROPDOWN,
+        )),
+        vol.Required(CONF_STATION_TIMEZONE, default=settings.get(
+            CONF_STATION_TIMEZONE, default_timezone)): str,
+    })
+
+
+def detect_with_settings(fields: list[str],
+                         settings: dict[str, Any]) -> list[str]:
+    """Use the station's settings for both detection and runtime."""
+    timezone = dt_util.get_time_zone(settings[CONF_STATION_TIMEZONE])
+    assert timezone is not None
+    return detect_conditions(fields, timezone, settings[CONF_DATE_FORMAT])
+
+
 class ClientrawConfigFlow(ConfigFlow, domain=DOMAIN):
     """Configure a Clientraw station without YAML."""
 
     VERSION = 1
+    MINOR_VERSION = 2
 
     def __init__(self) -> None:
         self._settings: dict[str, Any] = {}
@@ -74,6 +118,8 @@ class ClientrawConfigFlow(ConfigFlow, domain=DOMAIN):
                 name = str(user_input[CONF_NAME]).strip()
                 if not name:
                     raise ValueError("Station name must not be empty")
+                timestamp = timestamp_settings(
+                    user_input, self.hass.config.time_zone)
             except (ValueError, vol.Invalid):
                 errors["base"] = "invalid_settings"
             else:
@@ -89,8 +135,10 @@ class ClientrawConfigFlow(ConfigFlow, domain=DOMAIN):
                     self._settings = {
                         CONF_URL: url, CONF_NAME: name,
                         CONF_INTERVAL: interval,
+                        **timestamp,
                     }
-                    self._selected = detect_conditions(fields)
+                    self._selected = detect_with_settings(
+                        fields, self._settings)
                     return await self.async_step_conditions()
         defaults = user_input or {}
         return self.async_show_form(
@@ -102,7 +150,8 @@ class ClientrawConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_NAME, DEFAULT_NAME)): str,
                 vol.Required(CONF_INTERVAL, default=defaults.get(
                     CONF_INTERVAL, DEFAULT_INTERVAL)): INTERVAL,
-            }),
+            }).extend(timestamp_schema(
+                defaults, self.hass.config.time_zone).schema),
         )
 
     async def async_step_conditions(
@@ -162,6 +211,7 @@ class ClientrawConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_IMPORT_ID: token,
                 CONF_IMPORT_SIGNATURE: signature,
                 CONF_LEGACY_NAME: user_input[CONF_NAME],
+                **timestamp_settings({}, self.hass.config.time_zone),
             },
         )
 
@@ -185,7 +235,9 @@ class ClientrawConfigFlow(ConfigFlow, domain=DOMAIN):
                 name = str(user_input[CONF_NAME]).strip()
                 if not name:
                     raise ValueError("Station name must not be empty")
-            except ValueError:
+                timestamp = timestamp_settings(
+                    {**entry.data, **user_input}, self.hass.config.time_zone)
+            except (ValueError, vol.Invalid):
                 errors["base"] = "invalid_settings"
             else:
                 unique_id = endpoint_id(url)
@@ -200,13 +252,15 @@ class ClientrawConfigFlow(ConfigFlow, domain=DOMAIN):
                 except FETCH_ERRORS:
                     errors["base"] = "cannot_connect"
                 else:
-                    self._settings = {CONF_URL: url, CONF_NAME: name}
+                    self._settings = {
+                        CONF_URL: url, CONF_NAME: name, **timestamp}
                     self._reconfiguring = True
                     if user_input.get(CONF_REDETECT, False):
-                        self._selected = detect_conditions(fields)
+                        self._selected = detect_with_settings(
+                            fields, self._settings)
                         return await self.async_step_conditions()
                     return self._finish_reconfigure()
-        defaults = user_input or entry.data
+        defaults = {**entry.data, **(user_input or {})}
         return self.async_show_form(
             step_id="reconfigure", errors=errors,
             data_schema=vol.Schema({
@@ -214,7 +268,8 @@ class ClientrawConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_NAME, default=defaults[CONF_NAME]): str,
                 vol.Optional(CONF_REDETECT, default=defaults.get(
                     CONF_REDETECT, False)): bool,
-            }),
+            }).extend(timestamp_schema(
+                defaults, self.hass.config.time_zone).schema),
         )
 
     def _finish_reconfigure(
@@ -265,7 +320,9 @@ class ClientrawOptionsFlow(OptionsFlow):
                 except FETCH_ERRORS:
                     errors["base"] = "cannot_connect"
                 else:
-                    self._selected = detect_conditions(fields)
+                    self._selected = detect_with_settings(
+                        fields, timestamp_settings(
+                            entry.data, self.hass.config.time_zone))
                     return await self.async_step_conditions()
         defaults = user_input or {
             CONF_INTERVAL: entry.options.get(
