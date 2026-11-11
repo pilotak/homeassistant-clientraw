@@ -163,8 +163,8 @@ def parse_condition(fields: list[str], key: str,
                 _LOGGER.debug("Invalid normalized Clientraw rain rate")
                 return None
             return value
-        case ("number" | "humidity" | "temperature" | "wind" | "rain"
-              | "pressure" | "height" | "solar"):
+        case "number" | "humidity" | "temperature" | "wind" | "rain" \
+                | "pressure" | "height" | "solar":
             return value
         case _:
             raise ValueError(f"Unknown condition conversion: {condition.kind}")
