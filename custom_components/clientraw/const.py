@@ -109,8 +109,8 @@ CONDITIONS = {
     "uv_index": Condition("UV index", 79, "number", UV_INDEX, UV_INDEX,
                           "mdi:white-balance-sunny"),
     "apparent_temp": temperature("Apparent temperature", 130),
-    "apparent_temp_min": temperature("Apparent temperature", 137),
-    "apparent_temp_max": temperature("Apparent temperature", 136),
+    "apparent_temp_min": temperature("Min apparent temperature", 137),
+    "apparent_temp_max": temperature("Max apparent temperature", 136),
 }
 
 FORECASTS = (
