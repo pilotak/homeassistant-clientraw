@@ -59,12 +59,6 @@ Configuration variables:
   - **apparent_temp_min**: Min apparent temperature (°C or °F)
   - **apparent_temp_max**: Max apparent temperature (°C or °F)
 
-Rain rate (field 10) is reported in mm/min and converted to mm/h or in/h.
-Cloud height (field 73) is reported in feet and converted to meters for metric
-units. Humidex uses field 45. These corrections follow the Clientraw field
-description and fix inherited parsing errors; readings can differ from older
-versions of the integration.
-
 ## Install via [HACS](https://github.com/custom-components/hacs)
 You can find this integration in a store.
 
