@@ -40,13 +40,13 @@ Configuration variables:
   - **yesterday_rain**: Yesterday Rain (mm or in)
   - **monthly_rain**: Monthly Rain (mm or in)
   - **yearly_rain**: Yearly Rain (mm or in)
-  - **rain_rate**: Rain rate (mm or in)
+  - **rain_rate**: Rain rate (mm/h or in/h)
   - **pressure**: Pressure (hPa or inHg)
   - **humidity**: Relative humidity (%)
   - **humidity_indoor**: Relative indoor humidity (%)
   - **humidity_max**: Max relative humidity (%)
   - **humidity_min**: Min relative humidity (%)
-  - **cloud_height**: Cloud Height (m or ft)
+  - **cloud_height**: Cloud Height (m or ft; source field is feet)
   - **forecast**: string based output ie.: night showers
   - **station**: station name with time added
   - **date**: current date
@@ -58,6 +58,12 @@ Configuration variables:
   - **apparent_temp**: Apparent temperature (°C or °F)
   - **apparent_temp_min**: Min apparent temperature (°C or °F)
   - **apparent_temp_max**: Max apparent temperature (°C or °F)
+
+Rain rate (field 10) is reported in mm/min and converted to mm/h or in/h.
+Cloud height (field 73) is reported in feet and converted to meters for metric
+units. Humidex uses field 45. These corrections follow the Clientraw field
+description and fix inherited parsing errors; readings can differ from older
+versions of the integration.
 
 ## Install via [HACS](https://github.com/custom-components/hacs)
 You can find this integration in a store.
