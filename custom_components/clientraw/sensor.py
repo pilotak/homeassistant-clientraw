@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     CONF_MONITORED_CONDITIONS, DEGREE, PERCENTAGE, STATE_UNKNOWN,
     STATE_UNAVAILABLE, UV_INDEX, UnitOfIrradiance, UnitOfLength,
-    UnitOfPressure, UnitOfSpeed, UnitOfTemperature)
+    UnitOfPressure, UnitOfSpeed, UnitOfTemperature, UnitOfVolumetricFlux)
 from homeassistant.util import slugify
 from homeassistant.util.unit_conversion import (
     TemperatureConverter, PressureConverter, DistanceConverter)
@@ -129,8 +129,8 @@ SENSOR_TYPES = {
         'mdi:weather-rainy'],
     'rain_rate': [
         'Rain Rate',
-        UnitOfLength.MILLIMETERS,
-        UnitOfLength.INCHES,
+        UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        UnitOfVolumetricFlux.INCHES_PER_HOUR,
         'mdi:weather-rainy'],
     'pressure': [
         'Pressure',
@@ -415,8 +415,9 @@ class ClientrawData(object):
                         and self.data[10] != '---':
                     rate = float(self.data[10])
 
+                    rate *= 60
                     if self.hass.config.units is not METRIC_SYSTEM:
-                        rate = rate * 0.0393700787
+                        rate *= 0.0393700787
 
                     new_state = round(rate, 2)
                 else:
@@ -574,9 +575,9 @@ class ClientrawData(object):
                         and self.data[73] != '---':
                     height = float(self.data[73])
 
-                    if self.hass.config.units is not METRIC_SYSTEM:
+                    if self.hass.config.units is METRIC_SYSTEM:
                         height = DistanceConverter.convert(
-                            height, UnitOfLength.METERS, UnitOfLength.FEET)
+                            height, UnitOfLength.FEET, UnitOfLength.METERS)
 
                     new_state = round(height, 2)
                 else:
@@ -611,9 +612,9 @@ class ClientrawData(object):
                     new_state = STATE_UNAVAILABLE
 
             elif dev.type == 'humidex':
-                if self.data[44] != '-' and self.data[44] != '--' \
-                        and self.data[44] != '---':
-                    temperature = float(self.data[44])
+                if self.data[45] != '-' and self.data[45] != '--' \
+                        and self.data[45] != '---':
+                    temperature = float(self.data[45])
 
                     if self.hass.config.units is not METRIC_SYSTEM:
                         temperature = TemperatureConverter.convert(

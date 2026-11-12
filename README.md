@@ -40,13 +40,13 @@ Configuration variables:
   - **yesterday_rain**: Yesterday Rain (mm or in)
   - **monthly_rain**: Monthly Rain (mm or in)
   - **yearly_rain**: Yearly Rain (mm or in)
-  - **rain_rate**: Rain rate (mm or in)
+  - **rain_rate**: Rain rate (mm/h or in/h)
   - **pressure**: Pressure (hPa or inHg)
   - **humidity**: Relative humidity (%)
   - **humidity_indoor**: Relative indoor humidity (%)
   - **humidity_max**: Max relative humidity (%)
   - **humidity_min**: Min relative humidity (%)
-  - **cloud_height**: Cloud Height (m or ft)
+  - **cloud_height**: Cloud Height (m or ft; source field is feet)
   - **forecast**: string based output ie.: night showers
   - **station**: station name with time added
   - **date**: current date
