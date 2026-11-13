@@ -1,0 +1,92 @@
+{
+  "title": "Clientraw",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect your weather station",
+        "description": "Enter the full HTTP(S) URL of your clientraw.txt file. Next, review the suggested monitored conditions.",
+        "data": {
+          "url": "Clientraw URL",
+          "name": "Station name",
+          "interval": "Polling interval (minutes, 1-59)",
+          "date_format": "Station date format",
+          "station_timezone": "Station timezone (IANA name, e.g. Europe/Oslo)"
+        }
+      },
+      "conditions": {
+        "title": "Choose monitored conditions",
+        "description": "Usable readings are preselected as a setup helper, not a definitive list of your station's capabilities. Zero values count as readings, even if your station uses zero for unsupported sensors. Check or uncheck any condition. Selected missing readings remain unavailable until data appears. Your selection will not change automatically.",
+        "data": {
+          "monitored_conditions": "Monitored conditions"
+        }
+      },
+      "reconfigure": {
+        "title": "Edit station connection",
+        "description": "Changing connection or timestamp settings preserves selected entity IDs. Choose the date format used in clientraw.txt and the station's timezone, which may differ from Home Assistant's. Keep your saved selection, or review fresh suggestions. Deselected entities are deleted; re-enabling may lose customizations.",
+        "data": {
+          "url": "Clientraw URL",
+          "name": "Station name",
+          "redetect": "Prefill a new conditions checklist from this URL",
+          "date_format": "Station date format",
+          "station_timezone": "Station timezone (IANA name, e.g. Europe/Oslo)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not retrieve the file. Check the URL and station availability, then try again.",
+      "invalid_clientraw": "The response is not a valid clientraw file. Enter the URL of clientraw.txt, not the station's web page.",
+      "invalid_settings": "Enter a valid HTTP(S) URL, nonempty name, polling interval from 1 to 59 minutes, supported date format and valid IANA station timezone.",
+      "invalid_conditions": "Choose conditions from the supported list."
+    },
+    "abort": {
+      "already_configured": "This clientraw URL is already configured.",
+      "already_imported": "This YAML configuration has already been imported. Your UI settings have been preserved.",
+      "import_conflict": "This URL already has an entry. Resolve the YAML import conflict in Repairs before removing the YAML configuration.",
+      "reconfigure_successful": "Station settings updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Clientraw options",
+        "description": "Edit your saved selection and polling interval. Deselected entities are deleted; re-enabling may lose customizations. Re-detection opens a new checklist and does not apply changes until you confirm. Change date format and station timezone through Reconfigure.",
+        "data": {
+          "interval": "Polling interval (minutes, 1-59)",
+          "monitored_conditions": "Monitored conditions",
+          "redetect": "Prefill a new conditions checklist from the URL"
+        }
+      },
+      "conditions": {
+        "title": "Review detected conditions",
+        "description": "These suggestions replace the previous checklist only if you submit. Zero values count as readings; unsupported sensors may report zero. You can manually select any condition, including conditions without a current reading.",
+        "data": {
+          "monitored_conditions": "Monitored conditions"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not retrieve the file. Your saved settings have not changed. Try again, or save without re-detecting.",
+      "invalid_clientraw": "The endpoint did not return valid clientraw data. Your saved settings have not changed.",
+      "invalid_settings": "Choose supported conditions and an interval from 1 to 59 minutes.",
+      "invalid_conditions": "Choose conditions from the supported list."
+    }
+  },
+  "issues": {
+    "invalid_timestamp": {
+      "title": "Clientraw station timestamp is invalid",
+      "description": "Last updated for {station} cannot be interpreted. Check the date in clientraw.txt field 74 and the hour, minute and second in fields 29-31. Use Reconfigure to select the matching DMY, MDY or ISO date format and the station's IANA timezone. Ambiguous or nonexistent times at daylight-saving transitions are unavailable rather than guessed. Other sensors continue updating. This warning clears when the timestamp becomes valid or Last updated is deselected."
+    },
+    "remove_yaml": {
+      "title": "Remove imported Clientraw YAML",
+      "description": "Clientraw now uses UI configuration. Check that the imported entry is set up successfully under Settings > Devices & services, then remove only its `sensor: - platform: clientraw` block from configuration.yaml and restart Home Assistant. Do not remove unrelated settings or the whole file. Existing entity IDs and monitored conditions are preserved. Repeated imports will not overwrite UI changes."
+    },
+    "import_conflict": {
+      "title": "Clientraw YAML import conflicts with an existing entry",
+      "description": "A configuration entry already uses this URL. Do not remove the YAML until you have compared its name, interval, and conditions with the UI entry. Resolve duplicate endpoint definitions, retaining the intended configuration. If an old entity is owned by a different entry, resolve its ownership before retrying. No existing entry has been overwritten."
+    },
+    "migration_conflict": {
+      "title": "Clientraw entity migration needs attention",
+      "description": "The existing entity {entity_id} cannot be safely adopted because another entry owns it or its target unique ID is already in use. Resolve the duplicate entry or entity ownership and reload the imported entry. No conflicting entity has been reassigned."
+    }
+  }
+}
