@@ -1,6 +1,7 @@
 {
   "domain": "clientraw",
   "name": "Clientraw",
+  "categories": ["weather_alerts.forecasts"],
   "codeowners": ["@pilotak"],
   "config_flow": true,
   "dependencies": [],
