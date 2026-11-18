@@ -1,0 +1,4 @@
+pytest-homeassistant-custom-component==0.13.194
+pycodestyle==2.12.1
+# Keep the 2024.12 test harness's DNS cleanup compatible.
+pycares==4.5.0
